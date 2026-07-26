@@ -55,7 +55,6 @@
         .stat-num { font-size: 18px; font-weight: 800; color: var(--primary); }
         .stat-label { font-size: 10px; color: #558b2f; font-weight: 700; text-transform: uppercase; }
 
-        /* Məhsul Vitrini (Aşağıdakı boşluğu doldurmaq üçün) */
         .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
         .product-mini-card { background: #fff; border: 1px solid #dcedc8; border-radius: 8px; padding: 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--primary); }
         .product-mini-card img { width: 100%; height: 50px; object-fit: contain; margin-bottom: 4px; }
@@ -73,7 +72,7 @@
     <div id="loginScreen">
         <div class="card">
             <h3>🔐 Sistemə Giriş</h3>
-            <p class="login-banner">Zəhmət olaraq rolunuzu seçin və şifrənizi daxil edin.</p>
+            <p class="login-banner">Zəhmət olaraq rolunuzu seçin və şifrənizi daxil olun.</p>
             
             <div class="stats-grid">
                 <div class="stat-box">
@@ -98,12 +97,11 @@
             </select>
 
             <label>Şifrə:</label>
-            <input type="password" id="loginPassword" placeholder="Şifrəni daxil edin (Admin: 123, İşçi 1: 1, İşçi 2: 2...)" style="padding: 10px;">
+            <input type="password" id="loginPassword" placeholder="Admin: 123, İşçi 1: 1..." style="padding: 10px;">
 
             <button onclick="login()">Sistemə Daxil Ol</button>
         </div>
 
-        <!-- Aşağıdakı boşluğu dolduran Məhsul Vitrini -->
         <div class="card">
             <h3>💊 Əsas Aktiv Məhsullar</h3>
             <div class="products-grid">
@@ -135,10 +133,14 @@
         </div>
     </div>
 
-    <!-- ADMIN (İSMAYIL) PANELİ -->
+    <!-- ADMIN (İSMAYIL) ƏSAS PANELİ -->
     <div id="adminPanel" class="hidden">
-        <div class="badge">👑 İdarəetmə Paneli (Admin - İsmayıl)</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div class="badge" style="margin:0;">👑 Admin (İsmayıl)</div>
+            <button style="width: auto; margin: 0; padding: 6px 10px; font-size: 12px; background: #0277bd;" onclick="showReportPage()">📊 İşçi Hesabatı</button>
+        </div>
         
+        <!-- Stok Transferi -->
         <div class="card" style="background: #e8f5e9; border: 1px solid var(--primary);">
             <h3>🔄 İşçiyə Stok Transferi (Mal Verilməsi)</h3>
             <label>Hansı İşçiyə Verilir?</label>
@@ -151,15 +153,12 @@
                 <option value="İşçi 6">İşçi 6 (Sumqayıt / Abşeron)</option>
             </select>
 
-            <label>Məhsul Seçin:</label>
+            <label>Məhsul:</label>
             <select id="transferDrugSelect">
                 <option value="Golden Flexty">Golden Flexty</option>
                 <option value="Golden Vitamin D3">Golden Vitamin D3</option>
                 <option value="Golden Fish Oil">Golden Fish Oil</option>
                 <option value="Golden Immunix">Golden Immunix</option>
-                <option value="Golden Biotin">Golden Biotin</option>
-                <option value="Golden Glutathione">Golden Glutathione</option>
-                <option value="Golden 5HTP">Golden 5HTP</option>
             </select>
 
             <label>Miqdar (Qutu):</label>
@@ -174,7 +173,6 @@
                 <div class="stock-item"><span>Golden Flexty (Cəmi)</span> <strong>90 qutu</strong></div>
                 <div class="stock-item"><span>Golden Vitamin D3 (Cəmi)</span> <strong>120 qutu</strong></div>
                 <div class="stock-item"><span>Golden Fish Oil (Cəmi)</span> <strong>60 qutu</strong></div>
-                <div class="stock-item"><span>Golden Immunix (Cəmi)</span> <strong>72 qutu</strong></div>
             </div>
         </div>
 
@@ -183,6 +181,60 @@
             <div id="adminMap"></div>
         </div>
 
+        <button class="logout-btn" onclick="logout()">Çıxış Et</button>
+    </div>
+
+    <!-- ADMIN HESABAT SƏHİFƏSİ (AYRI EKRAN) -->
+    <div id="adminReportPage" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div class="badge" style="margin:0;">📊 İşçi Hesabatları</div>
+            <button style="width: auto; margin: 0; padding: 6px 10px; font-size: 12px; background: var(--secondary);" onclick="showAdminMainPage()">⬅️ Panelə Qayıt</button>
+        </div>
+
+        <div class="card">
+            <h3>📋 İşçilərin Ziyarət və Satış Cədvəli</h3>
+            <label>İşçi Seçin:</label>
+            <select id="filterAgent" onchange="filterReport()">
+                <option value="all">Bütün İşçilər</option>
+                <option value="İşçi 1">İşçi 1</option>
+                <option value="İşçi 2">İşçi 2</option>
+                <option value="İşçi 3">İşçi 3</option>
+            </select>
+            
+            <label>Tarix:</label>
+            <input type="date" id="filterDate" value="2026-07-26" onchange="filterReport()">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tarix/Saat</th>
+                        <th>İşçi</th>
+                        <th>Obyekt</th>
+                        <th>Fəaliyyət</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <tr>
+                        <td>26.07 13:10</td>
+                        <td>İşçi 1</td>
+                        <td>Zeytun #4</td>
+                        <td>Yeni Aptek | 12 qutu Flexty</td>
+                    </tr>
+                    <tr>
+                        <td>26.07 11:30</td>
+                        <td>İşçi 1</td>
+                        <td>Dr. Elçin Məmmədov</td>
+                        <td>Həkim Ziyarəti (Ressept razılığı)</td>
+                    </tr>
+                    <tr>
+                        <td>26.07 10:15</td>
+                        <td>İşçi 2</td>
+                        <td>Nizami Aptek</td>
+                        <td>Cari Aptek | 5 qutu D3</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
     </div>
 
@@ -305,12 +357,11 @@
         let val = document.getElementById("userSelect").value;
         let pass = document.getElementById("loginPassword").value;
 
-        // Şifrə yoxlaması: Admin üçün "123", İşçi 1 üçün "1", İşçi 2 üçün "2" və s.
         if(val === "admin" && pass !== "123") {
             alert("Yanlış şifrə! Admin şifrəsi: 123");
             return;
         } else if(val.startsWith("agent")) {
-            let expectedPass = val.replace("agent", ""); // agent1 -> 1, agent2 -> 2
+            let expectedPass = val.replace("agent", "");
             if(pass !== expectedPass) {
                 alert(`Yanlış şifrə! Bu işçi üçün şifrə: ${expectedPass}`);
                 return;
@@ -342,9 +393,21 @@
 
     function logout() {
         document.getElementById("adminPanel").classList.add("hidden");
+        document.getElementById("adminReportPage").classList.add("hidden");
         document.getElementById("agentPanel").classList.add("hidden");
         document.getElementById("loginScreen").classList.remove("hidden");
         document.getElementById("loginPassword").value = "";
+    }
+
+    function showReportPage() {
+        document.getElementById("adminPanel").classList.add("hidden");
+        document.getElementById("adminReportPage").classList.remove("hidden");
+    }
+
+    function showAdminMainPage() {
+        document.getElementById("adminReportPage").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        setTimeout(function() { if(adminMap) adminMap.invalidateSize(); }, 200);
     }
 
     function updateAgentStockDisplay() {
@@ -364,7 +427,7 @@
         let drugName = document.getElementById("transferDrugSelect").value;
         let qty = parseInt(document.getElementById("transferQty").value) || 0;
 
-        let drugIndexMap = { "Golden Flexty": 0, "Golden Vitamin D3": 1, "Golden Fish Oil": 2, "Golden Immunix": 3, "Golden Biotin": 4, "Golden Glutathione": 5, "Golden 5HTP": 6 };
+        let drugIndexMap = { "Golden Flexty": 0, "Golden Vitamin D3": 1, "Golden Fish Oil": 2, "Golden Immunix": 3 };
         let idx = drugIndexMap[drugName];
         if(idx !== undefined && agentStocks[targetAgent]) {
             agentStocks[targetAgent][idx] += qty;
@@ -428,6 +491,11 @@
     function submitVisit() {
         alert("Uğurlu Check-in! Məlumat qeydə alındı.");
         closeVisitFormModal();
+    }
+
+    function filterReport() {
+        let selectedAgent = document.getElementById("filterAgent").value;
+        alert("Hesabat " + selectedAgent + " üzrə filtrləndi.");
     }
 </script>
 
