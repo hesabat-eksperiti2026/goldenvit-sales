@@ -76,8 +76,8 @@
             
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-num">21</div>
-                    <div class="stat-label">Ümumi Məhsul</div>
+                    <div class="stat-num">4</div>
+                    <div class="stat-label">Aktiv Məhsul</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-num">6</div>
@@ -88,12 +88,12 @@
             <label>İstifadəçi / Rol Seçimi:</label>
             <select id="userSelect" style="padding: 10px; font-weight: 600;">
                 <option value="admin">👑 İsmayıl Mirzəzadə (Admin)</option>
-                <option value="agent1">👤 İşçi 1 (Şirvan / Salyan)</option>
-                <option value="agent2">👤 İşçi 2 (Gəncə / Tovuz)</option>
-                <option value="agent3">👤 İşçi 3 (Şəki / Qəbələ)</option>
-                <option value="agent4">👤 İşçi 4 (Lənkəran / Astara)</option>
-                <option value="agent5">👤 İşçi 5 (Quba / Xaçmaz)</option>
-                <option value="agent6">👤 İşçi 6 (Sumqayıt / Abşeron)</option>
+                <option value="İşçi 1">👤 İşçi 1 (Şirvan / Salyan)</option>
+                <option value="İşçi 2">👤 İşçi 2 (Gəncə / Tovuz)</option>
+                <option value="İşçi 3">👤 İşçi 3 (Şəki / Qəbələ)</option>
+                <option value="İşçi 4">👤 İşçi 4 (Lənkəran / Astara)</option>
+                <option value="İşçi 5">👤 İşçi 5 (Quba / Xaçmaz)</option>
+                <option value="İşçi 6">👤 İşçi 6 (Sumqayıt / Abşeron)</option>
             </select>
 
             <label>Şifrə:</label>
@@ -121,19 +121,11 @@
                     <img src="https://goldenvitpharma.com/uploads/products/immunix.png" onerror="this.src='https://via.placeholder.com/50?text=Immunix'" alt="Immunix">
                     Golden Immunix
                 </div>
-                <div class="product-mini-card">
-                    <img src="https://goldenvitpharma.com/uploads/products/biotin.png" onerror="this.src='https://via.placeholder.com/50?text=Biotin'" alt="Biotin">
-                    Golden Biotin
-                </div>
-                <div class="product-mini-card">
-                    <img src="https://goldenvitpharma.com/uploads/products/5htp.png" onerror="this.src='https://via.placeholder.com/50?text=5HTP'" alt="5HTP">
-                    Golden 5HTP
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- ADMIN (İSMAYIL) ƏSAS PANELİ -->
+    <!-- ADMIN ƏSAS PANELİ -->
     <div id="adminPanel" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <div class="badge" style="margin:0;">👑 Admin (İsmayıl)</div>
@@ -168,11 +160,12 @@
         </div>
 
         <div class="card">
-            <h3>📦 Ümumi Anbar & Stok Vəziyyəti</h3>
+            <h3>📦 Ümumi Anbar & Stok Vəziyyəti (4 Məhsul)</h3>
             <div id="adminTotalStock">
-                <div class="stock-item"><span>Golden Flexty (Cəmi)</span> <strong>90 qutu</strong></div>
-                <div class="stock-item"><span>Golden Vitamin D3 (Cəmi)</span> <strong>120 qutu</strong></div>
-                <div class="stock-item"><span>Golden Fish Oil (Cəmi)</span> <strong>60 qutu</strong></div>
+                <div class="stock-item"><span>Golden Flexty (Cəmi)</span> <strong id="adm_tot_0">60 qutu</strong></div>
+                <div class="stock-item"><span>Golden Vitamin D3 (Cəmi)</span> <strong id="adm_tot_1">80 qutu</strong></div>
+                <div class="stock-item"><span>Golden Fish Oil (Cəmi)</span> <strong id="adm_tot_2">40 qutu</strong></div>
+                <div class="stock-item"><span>Golden Immunix (Cəmi)</span> <strong id="adm_tot_3">48 qutu</strong></div>
             </div>
         </div>
 
@@ -184,7 +177,7 @@
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
     </div>
 
-    <!-- ADMIN HESABAT SƏHİFƏSİ (AYRI EKRAN) -->
+    <!-- ADMIN HESABAT SƏHİFƏSİ -->
     <div id="adminReportPage" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <div class="badge" style="margin:0;">📊 İşçi Hesabatları</div>
@@ -195,10 +188,13 @@
             <h3>📋 İşçilərin Ziyarət və Satış Cədvəli</h3>
             <label>İşçi Seçin:</label>
             <select id="filterAgent" onchange="filterReport()">
-                <option value="all">Bütün İşçilər</option>
+                <option value="all">Bütün İşçilər (Total)</option>
                 <option value="İşçi 1">İşçi 1</option>
                 <option value="İşçi 2">İşçi 2</option>
                 <option value="İşçi 3">İşçi 3</option>
+                <option value="İşçi 4">İşçi 4</option>
+                <option value="İşçi 5">İşçi 5</option>
+                <option value="İşçi 6">İşçi 6</option>
             </select>
             
             <label>Tarix:</label>
@@ -214,24 +210,7 @@
                     </tr>
                 </thead>
                 <tbody id="reportTableBody">
-                    <tr>
-                        <td>26.07 13:10</td>
-                        <td>İşçi 1</td>
-                        <td>Zeytun #4</td>
-                        <td>Yeni Aptek | 12 qutu Flexty</td>
-                    </tr>
-                    <tr>
-                        <td>26.07 11:30</td>
-                        <td>İşçi 1</td>
-                        <td>Dr. Elçin Məmmədov</td>
-                        <td>Həkim Ziyarəti (Ressept razılığı)</td>
-                    </tr>
-                    <tr>
-                        <td>26.07 10:15</td>
-                        <td>İşçi 2</td>
-                        <td>Nizami Aptek</td>
-                        <td>Cari Aptek | 5 qutu D3</td>
-                    </tr>
+                    <!-- Dinamik doldurulacaq -->
                 </tbody>
             </table>
         </div>
@@ -248,20 +227,17 @@
         </div>
 
         <div class="card">
-            <h3>🎒 Çantamdakı Dərman Stoku</h3>
+            <h3>🎒 Çantamdakı Dərman Stoku (4 Məhsul)</h3>
             <div id="stockList">
-                <div class="stock-item"><span>Golden Flexty</span> <strong id="agent_stk_0">15</strong></div>
-                <div class="stock-item"><span>Golden Vitamin D3</span> <strong id="agent_stk_1">20</strong></div>
-                <div class="stock-item"><span>Golden Fish Oil</span> <strong id="agent_stk_2">10</strong></div>
-                <div class="stock-item"><span>Golden Immunix</span> <strong id="agent_stk_3">12</strong></div>
-                <div class="stock-item"><span>Golden Biotin</span> <strong id="agent_stk_4">8</strong></div>
-                <div class="stock-item"><span>Golden Glutathione</span> <strong id="agent_stk_5">10</strong></div>
-                <div class="stock-item"><span>Golden 5HTP</span> <strong id="agent_stk_6">14</strong></div>
+                <div class="stock-item"><span>Golden Flexty</span> <strong id="agent_stk_0">10</strong></div>
+                <div class="stock-item"><span>Golden Vitamin D3</span> <strong id="agent_stk_1">15</strong></div>
+                <div class="stock-item"><span>Golden Fish Oil</span> <strong id="agent_stk_2">8</strong></div>
+                <div class="stock-item"><span>Golden Immunix</span> <strong id="agent_stk_3">10</strong></div>
             </div>
         </div>
 
         <div class="card">
-            <h3>🔍 Aptek və Həkim Axtarışı (Waze)</h3>
+            <h3>🔍 Aptek və Həkim Axtarışı</h3>
             <label>Obyekt Adı Yazın:</label>
             <input type="text" id="pharmacySearchInput" placeholder="Məs: Zeytun Aptek #4..." onkeyup="searchPharmacyOnMap()">
             <div id="map"></div>
@@ -317,16 +293,48 @@
                 <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
+                
+                <label>Dərman Satıldı / Verildi?</label>
+                <select id="newSoldCheck" onchange="toggleNewDrugFields()">
+                    <option value="xeyr">Xeyr</option>
+                    <option value="beli">Bəli</option>
+                </select>
+                <div id="newDrugSubFields" class="hidden" style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
+                    <label>Məhsul:</label>
+                    <select id="newDrugSelect">
+                        <option value="Golden Flexty">Golden Flexty</option>
+                        <option value="Golden Vitamin D3">Golden Vitamin D3</option>
+                        <option value="Golden Fish Oil">Golden Fish Oil</option>
+                        <option value="Golden Immunix">Golden Immunix</option>
+                    </select>
+                    <label>Miqdar (Qutu):</label>
+                    <input type="number" id="newDrugQty" value="1" min="1">
+                </div>
             </div>
 
             <!-- Cari Aptek -->
             <div id="cariAptekFields" class="visit-section hidden">
-                <label>Mövcud Aptek:</label>
-                <select id="existingPharmacySelect">
-                    <option value="Zeytun Aptek #4">Zeytun Aptek #4</option>
-                    <option value="Ailə Apteki">Ailə Apteki</option>
-                    <option value="Nizami Aptek">Nizami Aptek</option>
+                <label>Mövcud Aptek (Seçən kimi Waze açılır):</label>
+                <select id="existingPharmacySelect" onchange="onCariPharmacySelected()">
+                    <option value="">-- Aptek Seçin --</option>
+                    <option value="Zeytun Aptek #4" data-lat="40.4150" data-lon="49.8550">Zeytun Aptek #4</option>
+                    <option value="Ailə Apteki" data-lat="40.4020" data-lon="49.8800">Ailə Apteki</option>
+                    <option value="Nizami Aptek" data-lat="40.4200" data-lon="49.8400">Nizami Aptek</option>
                 </select>
+
+                <div id="wazeRouteBox" class="hidden" style="margin-top: 8px; padding: 8px; background: #e1f5fe; border-radius: 6px; text-align: center;">
+                    <a id="wazeLinkBtn" href="#" target="_blank" style="background:#0277bd; color:white; padding:6px 12px; text-decoration:none; border-radius:6px; display:inline-block; font-size:12px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>
+                </div>
+
+                <label style="margin-top: 10px;">Stokdan Mal Ver (Məhsul):</label>
+                <select id="cariDrugSelect">
+                    <option value="Golden Flexty">Golden Flexty</option>
+                    <option value="Golden Vitamin D3">Golden Vitamin D3</option>
+                    <option value="Golden Fish Oil">Golden Fish Oil</option>
+                    <option value="Golden Immunix">Golden Immunix</option>
+                </select>
+                <label>Miqdar (Qutu):</label>
+                <input type="number" id="cariDrugQty" value="1" min="1">
             </div>
 
             <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
@@ -340,54 +348,48 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let map, adminMap;
-    let agentName = "";
+    let currentAgent = "İşçi 1";
 
+    // 4 əsas məhsul üzrə hər işçinin stoku
     let agentStocks = {
-        "İşçi 1": [15, 20, 10, 12, 8, 10, 14],
-        "İşçi 2": [10, 15, 8, 10, 5, 6, 12],
-        "İşçi 3": [12, 18, 9, 11, 7, 9, 11],
-        "İşçi 4": [14, 22, 11, 14, 9, 11, 15],
-        "İşçi 5": [11, 16, 7, 9, 6, 8, 10],
-        "İşçi 6": [20, 25, 15, 18, 12, 14, 20]
+        "İşçi 1": [10, 15, 8, 10],
+        "İşçi 2": [10, 15, 8, 10],
+        "İşçi 3": [10, 15, 8, 10],
+        "İşçi 4": [10, 15, 8, 10],
+        "İşçi 5": [10, 15, 8, 10],
+        "İşçi 6": [10, 15, 8, 10]
     };
 
-    let currentAgentKey = "agent1";
+    let drugNames = ["Golden Flexty", "Golden Vitamin D3", "Golden Fish Oil", "Golden Immunix"];
+
+    // Bütün ziyarət və satış qeydləri bazası
+    let visitReports = [
+        { date: "2026-07-26", agent: "İşçi 1", obj: "Zeytun Aptek #4", desc: "Yeni Aptek | 2 qutu Golden Flexty" },
+        { date: "2026-07-26", agent: "İşçi 1", obj: "Dr. Elçin Məmmədov", desc: "Həkim Ziyarəti (Razılaşdı)" },
+        { date: "2026-07-26", agent: "İşçi 2", obj: "Ailə Apteki", desc: "Cari Aptek | 3 qutu Golden Vitamin D3" }
+    ];
 
     function login() {
         let val = document.getElementById("userSelect").value;
         let pass = document.getElementById("loginPassword").value;
 
-        if(val === "admin" && pass !== "123") {
-            alert("Yanlış şifrə! Admin şifrəsi: 123");
-            return;
-        } else if(val.startsWith("agent")) {
-            let expectedPass = val.replace("agent", "");
-            if(pass !== expectedPass) {
-                alert(`Yanlış şifrə! Bu işçi üçün şifrə: ${expectedPass}`);
-                return;
-            }
-        }
-
-        document.getElementById("loginScreen").classList.add("hidden");
-        
         if(val === "admin") {
+            if(pass !== "123") { alert("Yanlış şifrə! Admin şifrəsi: 123"); return; }
+            document.getElementById("loginScreen").classList.add("hidden");
             document.getElementById("adminPanel").classList.remove("hidden");
-            setTimeout(function() {
-                if(adminMap) adminMap.invalidateSize();
-                initAdminMap();
-            }, 300);
+            setTimeout(() => { if(adminMap) adminMap.invalidateSize(); initAdminMap(); }, 200);
+            updateAdminTotalStock();
         } else {
-            currentAgentKey = val;
+            let expectedPass = val.replace("İşçi ", "");
+            if(pass !== expectedPass) { alert(`Yanlış şifrə! Bu işçi üçün şifrə: ${expectedPass}`); return; }
+            
+            currentAgent = val;
+            document.getElementById("loginScreen").classList.add("hidden");
             document.getElementById("agentPanel").classList.remove("hidden");
-            let sel = document.getElementById("userSelect");
-            agentName = sel.options[sel.selectedIndex].text;
-            document.getElementById("agentBadge").innerText = "👤 " + agentName;
+            document.getElementById("agentBadge").innerText = "👤 " + currentAgent;
             
             updateAgentStockDisplay();
-            setTimeout(function() {
-                if(map) map.invalidateSize();
-                initUserMap();
-            }, 300);
+            setTimeout(() => { if(map) map.invalidateSize(); initUserMap(); }, 200);
         }
     }
 
@@ -402,23 +404,36 @@
     function showReportPage() {
         document.getElementById("adminPanel").classList.add("hidden");
         document.getElementById("adminReportPage").classList.remove("hidden");
+        filterReport();
     }
 
     function showAdminMainPage() {
         document.getElementById("adminReportPage").classList.add("hidden");
         document.getElementById("adminPanel").classList.remove("hidden");
-        setTimeout(function() { if(adminMap) adminMap.invalidateSize(); }, 200);
+        setTimeout(() => { if(adminMap) adminMap.invalidateSize(); }, 200);
+        updateAdminTotalStock();
     }
 
     function updateAgentStockDisplay() {
-        let keyMap = { "agent1": "İşçi 1", "agent2": "İşçi 2", "agent3": "İşçi 3", "agent4": "İşçi 4", "agent5": "İşçi 5", "agent6": "İşçi 6" };
-        let name = keyMap[currentAgentKey] || "İşçi 1";
-        let stockArr = agentStocks[name];
-        if(stockArr) {
-            for(let i=0; i<stockArr.length; i++) {
+        let arr = agentStocks[currentAgent];
+        if(arr) {
+            for(let i=0; i<arr.length; i++) {
                 let el = document.getElementById("agent_stk_" + i);
-                if(el) el.innerText = stockArr[i];
+                if(el) el.innerText = arr[i];
             }
+        }
+    }
+
+    function updateAdminTotalStock() {
+        let totals = [0, 0, 0, 0];
+        for(let agent in agentStocks) {
+            for(let i=0; i<4; i++) {
+                totals[i] += agentStocks[agent][i];
+            }
+        }
+        for(let i=0; i<4; i++) {
+            let el = document.getElementById("adm_tot_" + i);
+            if(el) el.innerText = totals[i] + " qutu";
         }
     }
 
@@ -427,11 +442,11 @@
         let drugName = document.getElementById("transferDrugSelect").value;
         let qty = parseInt(document.getElementById("transferQty").value) || 0;
 
-        let drugIndexMap = { "Golden Flexty": 0, "Golden Vitamin D3": 1, "Golden Fish Oil": 2, "Golden Immunix": 3 };
-        let idx = drugIndexMap[drugName];
-        if(idx !== undefined && agentStocks[targetAgent]) {
+        let idx = drugNames.indexOf(drugName);
+        if(idx !== -1 && agentStocks[targetAgent]) {
             agentStocks[targetAgent][idx] += qty;
             alert(`Uğurlu Transfer!\n${targetAgent} işçisinin çantasına ${qty} qutu ${drugName} əlavə olundu.`);
+            updateAdminTotalStock();
         }
     }
 
@@ -447,6 +462,31 @@
         if(type === "hekim") document.getElementById("hekimFields").classList.remove("hidden");
         if(type === "yeni_aptek") document.getElementById("yeniAptekFields").classList.remove("hidden");
         if(type === "cari_aptek") document.getElementById("cariAptekFields").classList.remove("hidden");
+    }
+
+    function toggleNewDrugFields() {
+        let val = document.getElementById("newSoldCheck").value;
+        if(val === "beli") {
+            document.getElementById("newDrugSubFields").classList.remove("hidden");
+        } else {
+            document.getElementById("newDrugSubFields").classList.add("hidden");
+        }
+    }
+
+    function onCariPharmacySelected() {
+        let sel = document.getElementById("existingPharmacySelect");
+        let opt = sel.options[sel.selectedIndex];
+        let lat = opt.getAttribute("data-lat");
+        let lon = opt.getAttribute("data-lon");
+
+        if(lat && lon) {
+            let wazeUrl = `https://www.waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+            document.getElementById("wazeLinkBtn").setAttribute("href", wazeUrl);
+            document.getElementById("wazeRouteBox").classList.remove("hidden");
+            if(map) map.setView([parseFloat(lat), parseFloat(lon)], 15);
+        } else {
+            document.getElementById("wazeRouteBox").classList.add("hidden");
+        }
     }
 
     let sampleLocations = [
@@ -465,9 +505,7 @@
 
         sampleLocations.forEach(loc => {
             let marker = L.marker([loc.lat, loc.lon]).addTo(map);
-            let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>${loc.address}<br><br>` +
-                `<a href="https://www.waze.com/ul?ll=${loc.lat},${loc.lon}&navigate=yes" target="_blank" style="background:#0277bd; color:white; padding:6px 10px; text-decoration:none; border-radius:6px; display:inline-block; font-size:12px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>`;
-            marker.bindPopup(popupContent);
+            marker.bindPopup(`<b>[${loc.type}] ${loc.name}</b><br>${loc.address}`);
         });
     }
 
@@ -484,18 +522,93 @@
 
         sampleLocations.forEach(loc => {
             let marker = L.marker([loc.lat, loc.lon]).addTo(adminMap);
-            marker.bindPopup(`<b>${loc.name}</b><br>Tip: ${loc.type}<br>Status: Yoxlanılıb`);
+            marker.bindPopup(`<b>${loc.name}</b><br>Tip: ${loc.type}`);
         });
     }
 
     function submitVisit() {
-        alert("Uğurlu Check-in! Məlumat qeydə alındı.");
+        let selectedDate = document.getElementById("workDate").value;
+        let type = document.getElementById("visitType").value;
+        let timeNow = new Date().toLocaleTimeString();
+        let objName = "";
+        let desc = "";
+
+        if(type === "hekim") {
+            let doc = document.getElementById("doctorName").value;
+            let agr = document.getElementById("doctorAgreement").value;
+            if(!doc) { alert("Həkimin adını daxil edin!"); return; }
+            objName = doc;
+            desc = `Həkim Ziyarəti (${agr})`;
+        } else if(type === "yeni_aptek") {
+            objName = document.getElementById("newPharmacyName").value;
+            if(!objName) { alert("Aptekin adını daxil edin!"); return; }
+            let soldCheck = document.getElementById("newSoldCheck").value;
+            if(soldCheck === "beli") {
+                let drug = document.getElementById("newDrugSelect").value;
+                let qty = parseInt(document.getElementById("newDrugQty").value) || 0;
+                let idx = drugNames.indexOf(drug);
+                if(idx !== -1) {
+                    if(agentStocks[currentAgent][idx] < qty) {
+                        alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
+                        return;
+                    }
+                    agentStocks[currentAgent][idx] -= qty;
+                }
+                desc = `Yeni Aptek | ${qty} qutu ${drug} satıldı`;
+            } else {
+                desc = "Yeni Aptek (Yalnız tanışlıq)";
+            }
+        } else {
+            objName = document.getElementById("existingPharmacySelect").value;
+            if(!objName) { alert("Aptek seçin!"); return; }
+            let drug = document.getElementById("cariDrugSelect").value;
+            let qty = parseInt(document.getElementById("cariDrugQty").value) || 0;
+            let idx = drugNames.indexOf(drug);
+            if(idx !== -1) {
+                if(agentStocks[currentAgent][idx] < qty) {
+                    alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
+                    return;
+                }
+                agentStocks[currentAgent][idx] -= qty;
+            }
+            desc = `Cari Aptek | ${qty} qutu ${drug} verildi`;
+        }
+
+        visitReports.push({
+            date: selectedDate,
+            agent: currentAgent,
+            obj: objName,
+            desc: `${timeNow} - ${desc}`
+        });
+
+        updateAgentStockDisplay();
+        updateAdminTotalStock();
+        alert("Check-in uğurla qeydə alındı və stok yeniləndi!");
         closeVisitFormModal();
     }
 
     function filterReport() {
-        let selectedAgent = document.getElementById("filterAgent").value;
-        alert("Hesabat " + selectedAgent + " üzrə filtrləndi.");
+        let selAgent = document.getElementById("filterAgent").value;
+        let selDate = document.getElementById("filterDate").value;
+        let tbody = document.getElementById("reportTableBody");
+        tbody.innerHTML = "";
+
+        let filtered = visitReports.filter(r => {
+            let matchAgent = (selAgent === "all" || r.agent === selAgent);
+            let matchDate = (r.date === selDate);
+            return matchAgent && matchDate;
+        });
+
+        if(filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#78909c;">Seçilmiş tarix və işçi üzrə məlumat yoxdur.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(r => {
+            let tr = document.createElement("tr");
+            tr.innerHTML = `<td>${r.date}</td><td><b>${r.agent}</b></td><td>${r.obj}</td><td>${r.desc}</td>`;
+            tbody.appendChild(tr);
+        });
     }
 </script>
 
