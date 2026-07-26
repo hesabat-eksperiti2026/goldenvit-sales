@@ -54,6 +54,11 @@
         .stat-box { background: #e8f5e9; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #c8e6c9; }
         .stat-num { font-size: 18px; font-weight: 800; color: var(--primary); }
         .stat-label { font-size: 10px; color: #558b2f; font-weight: 700; text-transform: uppercase; }
+
+        /* Məhsul Vitrini (Aşağıdakı boşluğu doldurmaq üçün) */
+        .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+        .product-mini-card { background: #fff; border: 1px solid #dcedc8; border-radius: 8px; padding: 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--primary); }
+        .product-mini-card img { width: 100%; height: 50px; object-fit: contain; margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -68,7 +73,7 @@
     <div id="loginScreen">
         <div class="card">
             <h3>🔐 Sistemə Giriş</h3>
-            <p class="login-banner">Zəhmət olaraq rolunuzu seçin və sistemə daxil olun.</p>
+            <p class="login-banner">Zəhmət olaraq rolunuzu seçin və şifrənizi daxil edin.</p>
             
             <div class="stats-grid">
                 <div class="stat-box">
@@ -82,8 +87,8 @@
             </div>
 
             <label>İstifadəçi / Rol Seçimi:</label>
-            <select id="userSelect" style="padding: 12px; font-weight: 600;">
-                <option value="admin">👑 İsmayıl Mirzəzadə (Rəhbər / Admin)</option>
+            <select id="userSelect" style="padding: 10px; font-weight: 600;">
+                <option value="admin">👑 İsmayıl Mirzəzadə (Admin)</option>
                 <option value="agent1">👤 İşçi 1 (Şirvan / Salyan)</option>
                 <option value="agent2">👤 İşçi 2 (Gəncə / Tovuz)</option>
                 <option value="agent3">👤 İşçi 3 (Şəki / Qəbələ)</option>
@@ -91,7 +96,42 @@
                 <option value="agent5">👤 İşçi 5 (Quba / Xaçmaz)</option>
                 <option value="agent6">👤 İşçi 6 (Sumqayıt / Abşeron)</option>
             </select>
+
+            <label>Şifrə:</label>
+            <input type="password" id="loginPassword" placeholder="Şifrəni daxil edin (Admin: 123, İşçi 1: 1, İşçi 2: 2...)" style="padding: 10px;">
+
             <button onclick="login()">Sistemə Daxil Ol</button>
+        </div>
+
+        <!-- Aşağıdakı boşluğu dolduran Məhsul Vitrini -->
+        <div class="card">
+            <h3>💊 Əsas Aktiv Məhsullar</h3>
+            <div class="products-grid">
+                <div class="product-mini-card">
+                    <img src="https://goldenvitpharma.com/uploads/products/flexty.png" onerror="this.src='https://via.placeholder.com/50?text=Flexty'" alt="Flexty">
+                    Golden Flexty
+                </div>
+                <div class="product-mini-card">
+                    <img src="https://goldenvitpharma.com/uploads/products/d3.png" onerror="this.src='https://via.placeholder.com/50?text=D3'" alt="D3">
+                    Golden Vit D3
+                </div>
+                <div class="product-mini-card">
+                    <img src="https://goldenvitpharma.com/uploads/products/fishoil.png" onerror="this.src='https://via.placeholder.com/50?text=FishOil'" alt="Fish Oil">
+                    Golden Fish Oil
+                </div>
+                <div class="product-mini-card">
+                    <img src="https://goldenvitpharma.com/uploads/products/immunix.png" onerror="this.src='https://via.placeholder.com/50?text=Immunix'" alt="Immunix">
+                    Golden Immunix
+                </div>
+                <div class="product-mini-card">
+                    <img src="https://goldenvitpharma.com/uploads/products/biotin.png" onerror="this.src='https://via.placeholder.com/50?text=Biotin'" alt="Biotin">
+                    Golden Biotin
+                </div>
+                <div class="product-mini-card">
+                    <img src="https://goldenvitpharma.com/uploads/products/5htp.png" onerror="this.src='https://via.placeholder.com/50?text=5HTP'" alt="5HTP">
+                    Golden 5HTP
+                </div>
+            </div>
         </div>
     </div>
 
@@ -99,7 +139,6 @@
     <div id="adminPanel" class="hidden">
         <div class="badge">👑 İdarəetmə Paneli (Admin - İsmayıl)</div>
         
-        <!-- STOK TRANSFERİ (RƏHBƏR TƏRƏFİNDƏN İŞÇİYƏ MAL VERMƏK) -->
         <div class="card" style="background: #e8f5e9; border: 1px solid var(--primary);">
             <h3>🔄 İşçiyə Stok Transferi (Mal Verilməsi)</h3>
             <label>Hansı İşçiyə Verilir?</label>
@@ -140,54 +179,8 @@
         </div>
 
         <div class="card">
-            <h3>🗺️ Bütün İşçilərin Canlı Xəritəsi (Ziyarətlər)</h3>
+            <h3>🗺️ Bütün İşçilərin Canlı Xəritəsi</h3>
             <div id="adminMap"></div>
-        </div>
-
-        <div class="card">
-            <h3>📊 İşçi və Tarix Hesabatları</h3>
-            <label>İşçi Seçin:</label>
-            <select id="filterAgent">
-                <option value="all">Bütün İşçilər</option>
-                <option value="İşçi 1">İşçi 1</option>
-                <option value="İşçi 2">İşçi 2</option>
-            </select>
-            
-            <label>Tarix:</label>
-            <input type="date" id="filterDate" value="2026-07-26">
-            
-            <button style="padding: 8px; font-size: 13px; margin-top: 8px;" onclick="filterReport()">Hesabatı Yenilə</button>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tarix/Saat</th>
-                        <th>İşçi</th>
-                        <th>Obyekt</th>
-                        <th>Əməliyyat</th>
-                    </tr>
-                </thead>
-                <tbody id="reportTableBody">
-                    <tr>
-                        <td>26.07 13:10</td>
-                        <td>İşçi 1</td>
-                        <td>Zeytun #4</td>
-                        <td>Yeni Aptek | 12 qutu Flexty</td>
-                    </tr>
-                    <tr>
-                        <td>26.07 11:30</td>
-                        <td>İşçi 1</td>
-                        <td>Dr. Elçin Məmmədov</td>
-                        <td>Həkim Ziyarəti (Ressept razılığı)</td>
-                    </tr>
-                    <tr>
-                        <td>26.07 10:15</td>
-                        <td>İşçi 2</td>
-                        <td>Nizami Aptek</td>
-                        <td>Cari Aptek | 5 qutu D3</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
 
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
@@ -202,7 +195,6 @@
             <input type="date" id="workDate" value="2026-07-26">
         </div>
 
-        <!-- Çantadaki Stok -->
         <div class="card">
             <h3>🎒 Çantamdakı Dərman Stoku</h3>
             <div id="stockList">
@@ -216,18 +208,15 @@
             </div>
         </div>
 
-        <!-- Xəritə və Axtarış -->
         <div class="card">
             <h3>🔍 Aptek və Həkim Axtarışı (Waze)</h3>
             <label>Obyekt Adı Yazın:</label>
-            <input type="text" id="pharmacySearchInput" placeholder="Məs: Zeytun Aptek #4, Dr. Elçin..." onkeyup="searchPharmacyOnMap()">
+            <input type="text" id="pharmacySearchInput" placeholder="Məs: Zeytun Aptek #4..." onkeyup="searchPharmacyOnMap()">
             <div id="map"></div>
         </div>
 
-        <!-- Ziyarət Routu Düyməsi -->
         <div class="card" style="text-align: center; background: #fff8e1; border-color: #ffe082;">
             <h3>🚀 Yeni Ziyarət / Satış Qeydiyyatı</h3>
-            <p style="font-size: 11px; color: #795548; margin: 0 0 10px 0;">Aptekə və ya həkimə çatanda check-in edin.</p>
             <button style="background: #ffa000; margin-top: 0;" onclick="openVisitFormModal()">Ziyarət Formunu Aç</button>
         </div>
 
@@ -258,13 +247,13 @@
             <!-- Həkim -->
             <div id="hekimFields" class="visit-section">
                 <label>Həkimin Adı və Soyadı:</label>
-                <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov (Kardioloq)">
+                <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov">
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="doctorPhone" placeholder="050-000-00-00">
                 <label>Ressept Razılığı:</label>
                 <select id="doctorAgreement">
-                    <option value="Razılaşdı (Yazır)">Razılaşdı (Resseptə yazır)</option>
-                    <option value="Düşünür / Təkrar">Düşünür / Təkrar görüş tələb edir</option>
+                    <option value="Razılaşdı">Razılaşdı (Resseptə yazır)</option>
+                    <option value="Düşünür">Düşünür / Təkrar görüş</option>
                 </select>
             </div>
 
@@ -276,21 +265,6 @@
                 <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
-                <label>Dərman Satıldı / Verildi?</label>
-                <select id="newSoldCheck" onchange="toggleNewDrugFields()">
-                    <option value="xeyr">Xeyr (Yalnız tanışlıq)</option>
-                    <option value="beli">Bəli (Sifariş aldı)</option>
-                </select>
-                <div id="newDrugSubFields" class="hidden" style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
-                    <label>Məhsul:</label>
-                    <select id="newDrugSelect">
-                        <option value="Golden Flexty">Golden Flexty</option>
-                        <option value="Golden Vitamin D3">Golden Vitamin D3</option>
-                        <option value="Golden Fish Oil">Golden Fish Oil</option>
-                    </select>
-                    <label>Miqdar (Qutu):</label>
-                    <input type="number" id="newDrugQty" value="1" min="1">
-                </div>
             </div>
 
             <!-- Cari Aptek -->
@@ -300,16 +274,7 @@
                     <option value="Zeytun Aptek #4">Zeytun Aptek #4</option>
                     <option value="Ailə Apteki">Ailə Apteki</option>
                     <option value="Nizami Aptek">Nizami Aptek</option>
-                    <option value="Şəfa Aptek">Şəfa Aptek</option>
                 </select>
-                <label>Stokdan Mal Ver (Məhsul):</label>
-                <select id="cariDrugSelect">
-                    <option value="Golden Flexty">Golden Flexty</option>
-                    <option value="Golden Vitamin D3">Golden Vitamin D3</option>
-                    <option value="Golden Fish Oil">Golden Fish Oil</option>
-                </select>
-                <label>Miqdar (Qutu):</label>
-                <input type="number" id="cariDrugQty" value="1" min="1">
             </div>
 
             <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
@@ -325,7 +290,6 @@
     let map, adminMap;
     let agentName = "";
 
-    // İşçilərin anbar stokları yaddaşı (Prototip üçün)
     let agentStocks = {
         "İşçi 1": [15, 20, 10, 12, 8, 10, 14],
         "İşçi 2": [10, 15, 8, 10, 5, 6, 12],
@@ -339,6 +303,20 @@
 
     function login() {
         let val = document.getElementById("userSelect").value;
+        let pass = document.getElementById("loginPassword").value;
+
+        // Şifrə yoxlaması: Admin üçün "123", İşçi 1 üçün "1", İşçi 2 üçün "2" və s.
+        if(val === "admin" && pass !== "123") {
+            alert("Yanlış şifrə! Admin şifrəsi: 123");
+            return;
+        } else if(val.startsWith("agent")) {
+            let expectedPass = val.replace("agent", ""); // agent1 -> 1, agent2 -> 2
+            if(pass !== expectedPass) {
+                alert(`Yanlış şifrə! Bu işçi üçün şifrə: ${expectedPass}`);
+                return;
+            }
+        }
+
         document.getElementById("loginScreen").classList.add("hidden");
         
         if(val === "admin") {
@@ -366,6 +344,7 @@
         document.getElementById("adminPanel").classList.add("hidden");
         document.getElementById("agentPanel").classList.add("hidden");
         document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("loginPassword").value = "";
     }
 
     function updateAgentStockDisplay() {
@@ -380,22 +359,12 @@
         }
     }
 
-    // Rəhbərin işçiyə mal ötürməsi (Stok Transferi)
     function transferStockToAgent() {
         let targetAgent = document.getElementById("transferAgentSelect").value;
         let drugName = document.getElementById("transferDrugSelect").value;
         let qty = parseInt(document.getElementById("transferQty").value) || 0;
 
-        let drugIndexMap = {
-            "Golden Flexty": 0,
-            "Golden Vitamin D3": 1,
-            "Golden Fish Oil": 2,
-            "Golden Immunix": 3,
-            "Golden Biotin": 4,
-            "Golden Glutathione": 5,
-            "Golden 5HTP": 6
-        };
-
+        let drugIndexMap = { "Golden Flexty": 0, "Golden Vitamin D3": 1, "Golden Fish Oil": 2, "Golden Immunix": 3, "Golden Biotin": 4, "Golden Glutathione": 5, "Golden 5HTP": 6 };
         let idx = drugIndexMap[drugName];
         if(idx !== undefined && agentStocks[targetAgent]) {
             agentStocks[targetAgent][idx] += qty;
@@ -403,13 +372,8 @@
         }
     }
 
-    function openVisitFormModal() {
-        document.getElementById("visitFormCard").classList.remove("hidden");
-    }
-
-    function closeVisitFormModal() {
-        document.getElementById("visitFormCard").classList.add("hidden");
-    }
+    function openVisitFormModal() { document.getElementById("visitFormCard").classList.remove("hidden"); }
+    function closeVisitFormModal() { document.getElementById("visitFormCard").classList.add("hidden"); }
 
     function toggleVisitFields() {
         let type = document.getElementById("visitType").value;
@@ -422,22 +386,12 @@
         if(type === "cari_aptek") document.getElementById("cariAptekFields").classList.remove("hidden");
     }
 
-    function toggleNewDrugFields() {
-        let val = document.getElementById("newSoldCheck").value;
-        if(val === "beli") {
-            document.getElementById("newDrugSubFields").classList.remove("hidden");
-        } else {
-            document.getElementById("newDrugSubFields").classList.add("hidden");
-        }
-    }
-
-    // 5-6 fərqli nümunə obyekt (Həkim və Apteklər xəritədə)
     let sampleLocations = [
         { name: "Zeytun Aptek #4", type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12" },
         { name: "Ailə Apteki", type: "Aptek", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45" },
         { name: "Nizami Aptek", type: "Aptek", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8" },
-        { name: "Dr. Elçin Məmmədov (Kardioloq)", type: "Həkim", lat: 40.3950, lon: 49.8200, address: "Mərkəzi Klinika" },
-        { name: "Dr. Leyla Qasımova (Pediatr)", type: "Həkim", lat: 40.4300, lon: 49.8700, address: "Baku Medical Plaza" },
+        { name: "Dr. Elçin Məmmədov", type: "Həkim", lat: 40.3950, lon: 49.8200, address: "Mərkəzi Klinika" },
+        { name: "Dr. Leyla Qasımova", type: "Həkim", lat: 40.4300, lon: 49.8700, address: "Baku Medical Plaza" },
         { name: "Şəfa Aptek #9", type: "Aptek", lat: 40.3850, lon: 49.8600, address: "İ. Qutqaşenli küç." }
     ];
 
@@ -457,9 +411,7 @@
     function searchPharmacyOnMap() {
         let query = document.getElementById("pharmacySearchInput").value.toLowerCase();
         let found = sampleLocations.find(l => l.name.toLowerCase().includes(query));
-        if(found) {
-            map.setView([found.lat, found.lon], 16);
-        }
+        if(found) { map.setView([found.lat, found.lon], 16); }
     }
 
     function initAdminMap() {
@@ -467,38 +419,15 @@
         adminMap = L.map('adminMap').setView([40.4093, 49.8671], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(adminMap);
 
-        // Admin xəritəsində də həmin 6 obyektin check-in nöqtələrini göstəririk
         sampleLocations.forEach(loc => {
             let marker = L.marker([loc.lat, loc.lon]).addTo(adminMap);
-            marker.bindPopup(`<b>${loc.name}</b><br>Tip: ${loc.type}<br>Son Ziyarət: İşçi tərəfindən yoxlanılıb`);
+            marker.bindPopup(`<b>${loc.name}</b><br>Tip: ${loc.type}<br>Status: Yoxlanılıb`);
         });
     }
 
     function submitVisit() {
-        let selectedDate = document.getElementById("workDate").value;
-        let region = document.getElementById("regionSelect").value;
-        let type = document.getElementById("visitType").value;
-        let timeNow = new Date().toLocaleTimeString();
-        
-        let details = "";
-        if(type === "hekim") {
-            let doc = document.getElementById("doctorName").value;
-            let agr = document.getElementById("doctorAgreement").value;
-            details = `Həkim: ${doc} (${agr})`;
-        } else if(type === "yeni_aptek") {
-            let ph = document.getElementById("newPharmacyName").value;
-            details = `Yeni Aptek: ${ph}`;
-        } else {
-            let ph = document.getElementById("existingPharmacySelect").value;
-            details = `Cari Aptek: ${ph}`;
-        }
-
-        alert(`Uğurlu Check-in!\nTarix: ${selectedDate}\nRayon: ${region}\n${details}\nSaat: ${timeNow}\nQeydiyyat sistemə yazıldı!`);
+        alert("Uğurlu Check-in! Məlumat qeydə alındı.");
         closeVisitFormModal();
-    }
-
-    function filterReport() {
-        alert("Seçilmiş tarix və işçi üzrə hesabat yeniləndi.");
     }
 </script>
 
