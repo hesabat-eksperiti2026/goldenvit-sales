@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Vit Pharma - Səyyar Satış CRM</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary: #1b5e20;
+            --secondary: #2e7d32;
+            --accent: #4caf50;
+            --bg: #f0f4f1;
+            --card-bg: #ffffff;
+            --text: #263238;
+            --gray: #78909c;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; box-sizing: border-box; }
+        .container { max-width: 480px; margin: 0 auto; background: var(--card-bg); min-height: 100vh; padding: 16px; box-shadow: 0 0 15px rgba(0,0,0,0.08); }
+        
+        /* Header */
+        .header { text-align: center; padding: 15px 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 15px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 10px; }
+        .logo-text { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
+        .sub-text { font-size: 11px; color: var(--gray); font-weight: 600; text-transform: uppercase; margin-top: 3px; }
+
+        /* Cards */
+        .card { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 12px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        
+        /* Form Controls */
+        label { display: block; margin-top: 10px; font-size: 11px; font-weight: 700; color: #455a64; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: #fff; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(76,175,80,0.2); }
+        
+        /* Buttons */
+        button { background: var(--secondary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 14px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(46,125,50,0.2); }
+        button:active { transform: scale(0.98); }
+        button:hover { background: var(--primary); }
+        
+        .hidden { display: none; }
+        .badge { background: #e8f5e9; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 12px; display: inline-block; margin-bottom: 12px; font-weight: 700; border: 1px solid #c8e6c9; }
+        
+        /* Stock list */
+        .stock-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eceff1; font-size: 13px; }
+        .stock-item:last-child { border-bottom: none; }
+        
+        /* Logout */
+        .logout-btn { background: #c62828; box-shadow: 0 4px 6px rgba(198,40,40,0.2); margin-top: 20px; }
+        .logout-btn:hover { background: #b71c1c; }
+
+        /* Maps */
+        #map, #adminMap { width: 100%; height: 240px; border-radius: 8px; margin-top: 8px; border: 1px solid #cfd8dc; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; }
+        th { background: #e8f5e9; color: var(--primary); font-weight: 700; }
+
+        /* Login Screen Enrichment */
+        .login-banner { font-size: 13px; color: #546e7a; line-height: 1.4; margin-bottom: 12px; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .stat-box { background: #e8f5e9; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #c8e6c9; }
+        .stat-num { font-size: 18px; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 10px; color: #558b2f; font-weight: 700; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-text">🌿 Golden Vit Pharma</div>
+        <div class="sub-text">Səyyar Satış və Sahə Nəzarət Sistemi</div>
+    </div>
+
+    <!-- GİRİŞ EKRANI (Boşluqlar dolduruldu, CRM məlumat blokları əlavə olundu) -->
+    <div id="loginScreen">
+        <div class="card">
+            <h3>🔐 Sistemə Giriş</h3>
+            <p class="login-banner">Zəhmət olaraq rolunuzu seçin və sistemə daxil olun. Bütün məlumatlar real vaxtda sinxronlaşır.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-num">21</div>
+                    <div class="stat-label">Ümumi Məhsul</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">6</div>
+                    <div class="stat-label">Aktiv İşçi</div>
+                </div>
+            </div>
+
+            <label>İstifadəçi / Rol Seçimi:</label>
+            <select id="userSelect" style="padding: 12px; font-weight: 600;">
+                <option value="admin">👑 İsmayıl Mirzəzadə (Rəhbər / Admin)</option>
+                <option value="agent1">👤 İşçi 1 (Şirvan / Salyan)</option>
+                <option value="agent2">👤 İşçi 2 (Gəncə / Tovuz)</option>
+                <option value="agent3">👤 İşçi 3 (Şəki / Qəbələ)</option>
+                <option value="agent4">👤 İşçi 4 (Lənkəran / Astara)</option>
+                <option value="agent5">👤 İşçi 5 (Quba / Xaçmaz)</option>
+                <option value="agent6">👤 İşçi 6 (Sumqayıt / Abşeron)</option>
+            </select>
+            <button onclick="login()">Sistemə Daxil Ol</button>
+        </div>
+
+        <div class="card" style="background: #f1f8e9; border-color: #dcedc8;">
+            <h3 style="color: #33691e; font-size: 13px;">💡 Sistem Haqqında</h3>
+            <p style="font-size: 12px; color: #558b2f; margin: 0; line-height: 1.4;">
+                Bu panel vasitəsilə aptek ziyarətləri, həkim ressept izləmələri, anbar stokları və işçilərin GPS konumları tam nəzarətdə saxlanılır.
+            </p>
+        </div>
+    </div>
+
+    <!-- ADMIN (İSMAYIL) PANELİ -->
+    <div id="adminPanel" class="hidden">
+        <div class="badge">👑 İdarəetmə Paneli (Admin - İsmayıl)</div>
+        
+        <div class="card">
+            <h3>📦 Ümumi Anbar & Stok Vəziyyəti</h3>
+            <div id="adminTotalStock">
+                <div class="stock-item"><span>Golden Flexty (Cəmi)</span> <strong>90 qutu</strong></div>
+                <div class="stock-item"><span>Golden Vitamin D3 (Cəmi)</span> <strong>120 qutu</strong></div>
+                <div class="stock-item"><span>Golden Fish Oil (Cəmi)</span> <strong>60 qutu</strong></div>
+                <div class="stock-item"><span>Golden Immunix (Cəmi)</span> <strong>72 qutu</strong></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🗺️ Canlı İşçi Xəritəsi</h3>
+            <div id="adminMap"></div>
+        </div>
+
+        <div class="card">
+            <h3>📊 İşçi və Tarix Hesabatları</h3>
+            <label>İşçi Seçin:</label>
+            <select id="filterAgent">
+                <option value="all">Bütün İşçilər</option>
+                <option value="İşçi 1">İşçi 1</option>
+                <option value="İşçi 2">İşçi 2</option>
+            </select>
+            
+            <label>Tarix:</label>
+            <input type="date" id="filterDate" value="2026-07-26">
+            
+            <button style="padding: 8px; font-size: 13px; margin-top: 8px;" onclick="filterReport()">Hesabatı Yenilə</button>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tarix/Saat</th>
+                        <th>İşçi</th>
+                        <th>Obyekt</th>
+                        <th>Əməliyyat</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <tr>
+                        <td>26.07 13:10</td>
+                        <td>İşçi 1</td>
+                        <td>Zeytun #4</td>
+                        <td>Yeni Aptek | 12 qutu Flexty</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">Çıxış Et</button>
+    </div>
+
+    <!-- İŞÇİ PANELİ -->
+    <div id="agentPanel" class="hidden">
+        <div class="badge" id="agentBadge">👤 İşçi Paneli</div>
+        
+        <!-- 1. Gün Seçimi -->
+        <div class="card" style="background: #e8f5e9; border-color: #c8e6c9;">
+            <label style="color: var(--primary);">📅 İş Gününü Seçin:</label>
+            <input type="date" id="workDate" value="2026-07-26">
+        </div>
+
+        <!-- Çantadaki Stok -->
+        <div class="card">
+            <h3>🎒 Çantamdakı Dərman Stoku</h3>
+            <div id="stockList">
+                <div class="stock-item"><span>Golden Flexty</span> <strong id="stk_1">15</strong></div>
+                <div class="stock-item"><span>Golden Vitamin D3</span> <strong id="stk_2">20</strong></div>
+                <div class="stock-item"><span>Golden Fish Oil</span> <strong id="stk_3">10</strong></div>
+                <div class="stock-item"><span>Golden Immunix</span> <strong id="stk_4">12</strong></div>
+                <div class="stock-item"><span>Golden Biotin</span> <strong id="stk_5">8</strong></div>
+                <div class="stock-item"><span>Golden Glutathione</span> <strong id="stk_6">10</strong></div>
+                <div class="stock-item"><span>Golden 5HTP</span> <strong id="stk_7">14</strong></div>
+            </div>
+        </div>
+
+        <!-- Xəritə və Axtarış -->
+        <div class="card">
+            <h3>🔍 Aptek Axtarışı və Waze</h3>
+            <label>Aptek Adı Yazın:</label>
+            <input type="text" id="pharmacySearchInput" placeholder="Məs: Zeytun Aptek #4" onkeyup="searchPharmacyOnMap()">
+            <div id="map"></div>
+        </div>
+
+        <!-- Ziyarət Routu Düyməsi -->
+        <div class="card" style="text-align: center; background: #fff8e1; border-color: #ffe082;">
+            <h3 style="color: #f57f17; justify-content: center; margin-bottom: 5px;">🚀 Yeni Ziyarət / Satış</h3>
+            <p style="font-size: 11px; color: #795548; margin: 0 0 10px 0;">Aptekə və ya həkimə çatanda formu doldurun.</p>
+            <button style="background: #ffa000; margin-top: 0; box-shadow: 0 4px 6px rgba(255,160,0,0.3);" onclick="openVisitFormModal()">Ziyarət Formunu Aç</button>
+        </div>
+
+        <!-- Ziyarət Formu (Gizli/Açılan) -->
+        <div id="visitFormCard" class="card hidden" style="border: 2px solid var(--secondary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <h3 style="margin: 0;">📝 Qeydiyyat Formu</h3>
+                <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeVisitFormModal()">Bağla</button>
+            </div>
+
+            <label>Rayon / Şəhər:</label>
+            <select id="regionSelect">
+                <option value="Şirvan">Şirvan / Salyan</option>
+                <option value="Gəncə">Gəncə / Tovuz</option>
+                <option value="Şəki">Şəki / Qəbələ</option>
+                <option value="Lənkəran">Lənkəran / Astara</option>
+                <option value="Quba">Quba / Xaçmaz</option>
+                <option value="Bakı">Bakı / Abşeron</option>
+            </select>
+
+            <label>Ziyarət Növü:</label>
+            <select id="visitType" onchange="toggleVisitFields()">
+                <option value="hekim">Həkim Ziyarəti</option>
+                <option value="yeni_aptek">Yeni Aptek</option>
+                <option value="cari_aptek">Cari Aptek</option>
+            </select>
+
+            <!-- Həkim -->
+            <div id="hekimFields" class="visit-section">
+                <label>Həkimin Adı və Soyadı:</label>
+                <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov">
+                <label>Əlaqə Nömrəsi:</label>
+                <input type="text" id="doctorPhone" placeholder="050-000-00-00">
+            </div>
+
+            <!-- Yeni Aptek -->
+            <div id="yeniAptekFields" class="visit-section hidden">
+                <label>Aptekin Adı:</label>
+                <input type="text" id="newPharmacyName" placeholder="Zəfər Aptek">
+                <label>Müdirin Adı Soyadı:</label>
+                <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
+                <label>Əlaqə Nömrəsi:</label>
+                <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
+                <label>Dərman Satıldı / Verildi?</label>
+                <select id="newSoldCheck" onchange="toggleNewDrugFields()">
+                    <option value="xeyr">Xeyr</option>
+                    <option value="beli">Bəli</option>
+                </select>
+                <div id="newDrugSubFields" class="hidden" style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
+                    <label>Məhsul:</label>
+                    <select id="newDrugSelect">
+                        <option value="Golden Flexty">Golden Flexty</option>
+                        <option value="Golden Vitamin D3">Golden Vitamin D3</option>
+                        <option value="Golden Fish Oil">Golden Fish Oil</option>
+                    </select>
+                    <label>Miqdar (Qutu):</label>
+                    <input type="number" id="newDrugQty" value="1" min="1">
+                </div>
+            </div>
+
+            <!-- Cari Aptek -->
+            <div id="cariAptekFields" class="visit-section hidden">
+                <label>Mövcud Aptek:</label>
+                <select id="existingPharmacySelect">
+                    <option value="Zeytun Aptek #4">Zeytun Aptek #4</option>
+                    <option value="Ailə Apteki">Ailə Apteki</option>
+                    <option value="Nizami Aptek">Nizami Aptek</option>
+                </select>
+                <label>Stokdan Mal Ver (Məhsul):</label>
+                <select id="cariDrugSelect">
+                    <option value="Golden Flexty">Golden Flexty</option>
+                    <option value="Golden Vitamin D3">Golden Vitamin D3</option>
+                    <option value="Golden Fish Oil">Golden Fish Oil</option>
+                </select>
+                <label>Miqdar (Qutu):</label>
+                <input type="number" id="cariDrugQty" value="1" min="1">
+            </div>
+
+            <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">Çıxış Et</button>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    let map, adminMap;
+    let agentName = "";
+
+    function login() {
+        let val = document.getElementById("userSelect").value;
+        document.getElementById("loginScreen").classList.add("hidden");
+        
+        if(val === "admin") {
+            document.getElementById("adminPanel").classList.remove("hidden");
+            setTimeout(function() {
+                if(adminMap) adminMap.invalidateSize();
+                initAdminMap();
+            }, 300);
+        } else {
+            document.getElementById("agentPanel").classList.remove("hidden");
+            let sel = document.getElementById("userSelect");
+            agentName = sel.options[sel.selectedIndex].text;
+            document.getElementById("agentBadge").innerText = "👤 " + agentName;
+            setTimeout(function() {
+                if(map) map.invalidateSize();
+                initUserMap();
+            }, 300);
+        }
+    }
+
+    function logout() {
+        document.getElementById("adminPanel").classList.add("hidden");
+        document.getElementById("agentPanel").classList.add("hidden");
+        document.getElementById("loginScreen").classList.remove("hidden");
+    }
+
+    function openVisitFormModal() {
+        document.getElementById("visitFormCard").classList.remove("hidden");
+    }
+
+    function closeVisitFormModal() {
+        document.getElementById("visitFormCard").classList.add("hidden");
+    }
+
+    function toggleVisitFields() {
+        let type = document.getElementById("visitType").value;
+        document.getElementById("hekimFields").classList.add("hidden");
+        document.getElementById("yeniAptekFields").classList.add("hidden");
+        document.getElementById("cariAptekFields").classList.add("hidden");
+
+        if(type === "hekim") document.getElementById("hekimFields").classList.remove("hidden");
+        if(type === "yeni_aptek") document.getElementById("yeniAptekFields").classList.remove("hidden");
+        if(type === "cari_aptek") document.getElementById("cariAptekFields").classList.remove("hidden");
+    }
+
+    function toggleNewDrugFields() {
+        let val = document.getElementById("newSoldCheck").value;
+        if(val === "beli") {
+            document.getElementById("newDrugSubFields").classList.remove("hidden");
+        } else {
+            document.getElementById("newDrugSubFields").classList.add("hidden");
+        }
+    }
+
+    function initUserMap() {
+        if(map) { map.remove(); }
+        map = L.map('map').setView([40.4093, 49.8671], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+        let pharmacies = [
+            { name: "Zeytun Aptek #4", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12" },
+            { name: "Ailə Apteki", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45" },
+            { name: "Nizami Aptek", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8" }
+        ];
+
+        pharmacies.forEach(ph => {
+            let marker = L.marker([ph.lat, ph.lon]).addTo(map);
+            let popupContent = `<b>${ph.name}</b><br>${ph.address}<br><br>` +
+                `<a href="https://www.waze.com/ul?ll=${ph.lat},${ph.lon}&navigate=yes" target="_blank" style="background:#0277bd; color:white; padding:6px 10px; text-decoration:none; border-radius:6px; display:inline-block; font-size:12px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>`;
+            marker.bindPopup(popupContent);
+        });
+    }
+
+    function searchPharmacyOnMap() {
+        let query = document.getElementById("pharmacySearchInput").value.toLowerCase();
+        if(query.includes("zeytun")) {
+            map.setView([40.4150, 49.8550], 16);
+        } else if(query.includes("ailə")) {
+            map.setView([40.4020, 49.8800], 16);
+        }
+    }
+
+    function initAdminMap() {
+        if(adminMap) { adminMap.remove(); }
+        adminMap = L.map('adminMap').setView([40.4093, 49.8671], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(adminMap);
+        L.marker([39.9333, 48.9167]).addTo(adminMap).bindPopup("<b>İşçi 1</b><br>Zeytun Aptek #4<br>12 qutu Golden Flexty");
+    }
+
+    function submitVisit() {
+        let selectedDate = document.getElementById("workDate").value;
+        let region = document.getElementById("regionSelect").value;
+        let timeNow = new Date().toLocaleTimeString();
+        alert(`Uğurlu Check-in!\nTarix: ${selectedDate}\nRayon: ${region}\nSaat: ${timeNow}\nQeydiyyat sistemə yazıldı!`);
+        closeVisitFormModal();
+    }
+
+    function filterReport() {
+        alert("Seçilmiş tarix və işçi üzrə hesabat yeniləndi.");
+    }
+</script>
+
+</body>
+</html>
