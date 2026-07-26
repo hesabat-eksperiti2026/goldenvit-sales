@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Golden Vit Pharma - Səyyar Satış CRM</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -16,10 +16,12 @@
             --text: #263238;
             --gray: #78909c;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; box-sizing: border-box; }
-        .container { max-width: 480px; margin: 0 auto; background: var(--card-bg); min-height: 100vh; padding: 16px; box-shadow: 0 0 15px rgba(0,0,0,0.08); }
+        /* Mobil sabitlik üçün toxunma və zoom məhdudiyyəti */
+        html { touch-action: manipulation; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; box-sizing: border-box; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 480px; margin: 0 auto; background: var(--card-bg); min-height: 100vh; padding: 16px; box-shadow: 0 0 15px rgba(0,0,0,0.08); overflow-x: hidden; }
         
-        .header { text-align: center; padding: 15px 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 15px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 10px; }
+        .header { text-align: center; padding: 15px 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 15px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 10px; cursor: pointer; }
         .logo-text { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
         .sub-text { font-size: 11px; color: var(--gray); font-weight: 600; text-transform: uppercase; margin-top: 3px; }
 
@@ -27,7 +29,7 @@
         h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         
         label { display: block; margin-top: 10px; font-size: 11px; font-weight: 700; color: #455a64; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: #fff; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 8px; box-sizing: border-box; font-size: 16px !important; background: #fff; } /* 16px telefonlarda avtomatik yaxınlaşmanın qarşısını alır */
         input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(76,175,80,0.2); }
         
         button { background: var(--secondary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 14px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(46,125,50,0.2); }
@@ -64,7 +66,8 @@
 <body>
 
 <div class="container">
-    <div class="header">
+    <!-- Header (Aktiv düymə - toxunanda səhifəni yeniləyir) -->
+    <div class="header" onclick="location.reload();" title="Səhifəni yeniləmək üçün toxun">
         <div class="logo-text">🌿 Golden Vit Pharma</div>
         <div class="sub-text">Səyyar Satış və Sahə Nəzarət Sistemi</div>
     </div>
@@ -593,6 +596,8 @@
         let type = document.getElementById("visitType").value;
         let objName = "";
         let visitTypeLabel = "";
+        let timeNow = new Date().toLocaleTimeString();
+        let fullDateTime = `${selectedDate} ${timeNow}`;
 
         if(type === "hekim") {
             let doc = document.getElementById("doctorName").value;
@@ -600,7 +605,7 @@
             if(!doc) { alert("Həkimin adını daxil edin!"); return; }
             objName = doc;
             visitTypeLabel = `Həkim Ziyarəti (${agr})`;
-            visitReports.push({ date: selectedDate, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: "-", qty: "-" });
+            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: "-", qty: "-" });
         } else if(type === "yeni_aptek") {
             objName = document.getElementById("newPharmacyName").value;
             if(!objName) { alert("Aptekin adını daxil edin!"); return; }
@@ -613,10 +618,10 @@
                     if(idx !== -1) {
                         agentStocks[currentAgent][idx] -= item.qty;
                     }
-                    visitReports.push({ date: selectedDate, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: item.drug, qty: item.qty });
+                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: item.drug, qty: item.qty });
                 });
             } else {
-                visitReports.push({ date: selectedDate, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: "Satış yoxdur", qty: 0 });
+                visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: "Satış yoxdur", qty: 0 });
             }
         } else {
             objName = document.getElementById("existingPharmacySelect").value;
@@ -629,7 +634,7 @@
                     if(idx !== -1) {
                         agentStocks[currentAgent][idx] -= item.qty;
                     }
-                    visitReports.push({ date: selectedDate, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: item.drug, qty: item.qty });
+                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: item.drug, qty: item.qty });
                 });
             } else {
                 alert("Zəhmət olmasa səbətə ən azı bir məhsul əlavə edin!");
@@ -639,7 +644,7 @@
 
         updateAgentStockDisplay();
         updateAdminTotalStock();
-        alert("Check-in uğurla qeydə alındı və stok yeniləndi!");
+        alert("Check-in uğurla tamamlandı və hesabata əlavə olundu!");
         closeVisitFormModal();
     }
 
@@ -662,7 +667,7 @@
 
         filtered.forEach(r => {
             let tr = document.createElement("tr");
-            tr.innerHTML = `<td>${r.date}</td><td><b>${r.agent}</b></td><td>${r.obj}</td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td>`;
+            tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.obj}</td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td>`;
             tbody.appendChild(tr);
         });
     }
