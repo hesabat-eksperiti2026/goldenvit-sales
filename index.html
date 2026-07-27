@@ -118,7 +118,7 @@
         </div>
         
         <div class="card" style="background: #e8f5e9; border: 1px solid var(--primary);">
-            <h3>🔄 İşçiyə Stok Transferi (Mal Verilməsi)</h3>
+            <h3>🔄 İşçiyə Mal və Bonus (Büdcə) Verilməsi</h3>
             <label>Hansı İşçiyə Verilir?</label>
             <select id="transferAgentSelect">
                 <option value="Quluzadə Orxan">Quluzadə Orxan</option>
@@ -136,12 +136,16 @@
             <label>Miqdar (Qutu):</label>
             <input type="number" id="transferQty" value="10" min="1">
 
-            <button style="background: var(--primary);" onclick="transferStockToAgent()">📥 İşçinin Çantasına Mal Artır</button>
+            <label>İşçiyə Verilən Bonus / Nümayəndə Büdcəsi (AZN):</label>
+            <input type="number" id="transferBonusBudget" value="100" min="0">
+
+            <button style="background: var(--primary);" onclick="transferStockAndBudgetToAgent()">📥 İşçinin Çantasına Mal & Bonus Artır</button>
         </div>
 
         <div class="card">
-            <h3>📦 Ümumi Anbar & Stok Vəziyyəti</h3>
+            <h3>📦 Ümumi Anbar & İşçi Büdcələri</h3>
             <div id="adminTotalStock"></div>
+            <div id="adminAgentBudgets" style="margin-top: 10px;"></div>
         </div>
 
         <div class="card">
@@ -187,7 +191,7 @@
                             <th>Rayon</th>
                             <th>Obyekt</th>
                             <th>Ziyarət Növü</th>
-                            <th>Həkim Ödənişi</th>
+                            <th>Həkimə Verilən (Bonusdan)</th>
                         </tr>
                     </thead>
                     <tbody id="routeTableBody"></tbody>
@@ -292,8 +296,9 @@
 
         <!-- 2. ÜMUMİ İŞÇİ STOKU - ÇANTADAKI -->
         <div class="card">
-            <h3>🎒 Çantamdakı Dərman Stoku</h3>
+            <h3>🎒 Çantamdakı Dərman Stoku & Qalan Bonus Büdcəm</h3>
             <div id="stockList"></div>
+            <div id="agentBudgetDisplay" style="margin-top: 10px; font-weight: bold; color: var(--primary); font-size: 13px; background: #e8f5e9; padding: 8px; border-radius: 6px; text-align: center;"></div>
         </div>
 
         <!-- 3. ZİYARƏT FORMU -->
@@ -321,14 +326,14 @@
                 </select>
 
                 <div id="doctorAdvanceBox" style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 6px; border: 1px dashed #b0bec5;">
-                    <label>İlkin ödəniş edildimi?</label>
+                    <label>Həkimə Bonus Büdcəsindən Pul Verildimi?</label>
                     <select id="doctorAdvanceCheck" onchange="toggleDoctorAdvanceInput()">
                         <option value="xeyr">Xeyr</option>
                         <option value="beli">Bəli</option>
                     </select>
 
                     <div id="doctorAdvanceAmountBox" class="hidden" style="margin-top: 6px;">
-                        <label>Ödəniş Məbləği (AZN):</label>
+                        <label>Verilən Məbləğ (AZN):</label>
                         <input type="number" id="doctorAdvanceAmount" value="0" min="0">
                     </div>
                 </div>
@@ -439,25 +444,21 @@
         "İşçi 7": [15, 20, 10, 15, 12, 10, 14, 10, 12]
     };
 
-    let pharmacyDebts = {
-        "Zeytun Aptek #4": { region: "Nəsimi", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12", stock: { "Golden Biotin n60": 5, "Golden Iron n60": 3 } },
-        "Ailə Apteki": { region: "Yasamal", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45", stock: { "Golden Biotin n60": 4 } },
-        "Nizami Aptek": { region: "Nizami", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8", stock: { "Golden Curcuma n30": 2 } },
-        "Şəfa Aptek #9": { region: "Şirvan", lat: 39.9333, lon: 48.9167, address: "Mərkəzi küç.", stock: { "Golden Immunix n30": 6 } }
+    // İşçilərin bonus (nümayəndə) büdcələri
+    let agentBudgets = {
+        "Quluzadə Orxan": 200,
+        "Xamıyev Hüseyn": 150,
+        "İşçi 3": 100,
+        "İşçi 4": 100,
+        "İşçi 5": 100,
+        "İşçi 6": 100,
+        "İşçi 7": 100
     };
 
-    let visitReports = [
-        { date: "2026-07-28", dateTime: "2026-07-28 10:00:00", agent: "Quluzadə Orxan", region: "Nəsimi", obj: "Zeytun Aptek #4", type: "Nağdlaşdırma (Sərbəst Satış)", drug: "Golden Biotin n60", qty: 5, totalAmount: 140, bonusAmount: 25, netAmount: 115 },
-        { date: "2026-07-28", dateTime: "2026-07-28 11:30:00", agent: "Quluzadə Orxan", region: "Yasamal", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti (Razılaşdı - İlkin ödəniş: 50 ₼)", drug: "-", qty: "-", totalAmount: 50, bonusAmount: 0, netAmount: 50 }
-    ];
-
-    let sampleLocations = [
-        { name: "Zeytun Aptek #4", region: "Nəsimi", type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12" },
-        { name: "Ailə Apteki", region: "Yasamal", type: "Aptek", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45" },
-        { name: "Nizami Aptek", region: "Nizami", type: "Aptek", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8" },
-        { name: "Dr. Elçin Məmmədov", region: "Yasamal", type: "Həkim", lat: 40.3950, lon: 49.8200, address: "Mərkəzi Klinika" },
-        { name: "Şəfa Aptek #9", region: "Şirvan", type: "Aptek", lat: 39.9400, lon: 48.9200, address: "İ. Qutqaşenli küç." }
-    ];
+    // Bütün nümunələr sıfırlandı, təmiz başlanğıc
+    let pharmacyDebts = {};
+    let visitReports = [];
+    let sampleLocations = [];
 
     function initDropdowns() {
         let drugSelects = [document.getElementById("transferDrugSelect"), document.getElementById("pharmacyStockDrug"), document.getElementById("newDrugSelect")];
@@ -480,6 +481,7 @@
             document.getElementById("adminPanel").classList.remove("hidden");
             initDropdowns();
             updateAdminTotalStock();
+            updateAdminAgentBudgets();
             setTimeout(() => { initAdminMap(); }, 200);
         } else {
             let passMap = { "Quluzadə Orxan": "1", "Xamıyev Hüseyn": "2" };
@@ -524,12 +526,14 @@
         document.getElementById("adminStockReportPage").classList.add("hidden");
         document.getElementById("adminPanel").classList.remove("hidden");
         updateAdminTotalStock();
+        updateAdminAgentBudgets();
         setTimeout(() => { if(adminMap) adminMap.invalidateSize(); }, 200);
     }
 
     function updateAgentStockDisplay() {
         let arr = agentStocks[currentAgent];
         let container = document.getElementById("stockList");
+        let budgetContainer = document.getElementById("agentBudgetDisplay");
         container.innerHTML = "";
         let keys = Object.keys(productsDB);
         if(arr) {
@@ -537,6 +541,7 @@
                 container.innerHTML += `<div class="stock-item"><span>${keys[i]}</span> <strong>${arr[i]} qutu</strong></div>`;
             }
         }
+        budgetContainer.innerHTML = `💰 Qalan Bonus Büdcəniz: ${agentBudgets[currentAgent] || 0} ₼`;
     }
 
     function setupAgentRegions() {
@@ -568,17 +573,29 @@
         }
     }
 
-    function transferStockToAgent() {
+    function updateAdminAgentBudgets() {
+        let container = document.getElementById("adminAgentBudgets");
+        let html = `<b>💼 İşçi Bonus Büdcələri:</b><br>`;
+        for(let ag in agentBudgets) {
+            html += `- ${ag}: <b>${agentBudgets[ag]} ₼</b><br>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function transferStockAndBudgetToAgent() {
         let targetAgent = document.getElementById("transferAgentSelect").value;
         let drugName = document.getElementById("transferDrugSelect").value;
         let qty = parseInt(document.getElementById("transferQty").value) || 0;
+        let addBudget = parseFloat(document.getElementById("transferBonusBudget").value) || 0;
 
         let keys = Object.keys(productsDB);
         let idx = keys.indexOf(drugName);
         if(idx !== -1 && agentStocks[targetAgent]) {
             agentStocks[targetAgent][idx] += qty;
-            alert(`Uğurlu Transfer!\n${targetAgent} işçisinin çantasına ${qty} qutu ${drugName} əlavə olundu.`);
+            agentBudgets[targetAgent] = (agentBudgets[targetAgent] || 0) + addBudget;
+            alert(`Uğurlu Transfer!\n${targetAgent} işçisinə ${qty} qutu ${drugName} və ${addBudget} ₼ bonus büdcəsi əlavə olundu.`);
             updateAdminTotalStock();
+            updateAdminAgentBudgets();
         }
     }
 
@@ -660,7 +677,7 @@
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
                 type: opLabel, drug: drug, qty: qty, 
-                totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount 
+                totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount, doctorPay: 0 
             });
             alert(`Uğurlu Nağdlaşdırma!\nÜmumi: ${totalAmount}₼ | Bonus: ${bonusAmount}₼ | Net: ${netAmount}₼`);
         } else {
@@ -677,7 +694,7 @@
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
                 type: "Əlavə Nisyə Mal", drug: drug, qty: qty, 
-                totalAmount: totalAmount, bonusAmount: 0, netAmount: totalAmount 
+                totalAmount: totalAmount, bonusAmount: 0, netAmount: totalAmount, doctorPay: 0 
             });
             alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi.`);
         }
@@ -795,11 +812,19 @@
 
             if(!doc) { alert("Həkimin adını daxil edin!"); return; }
 
+            if(agr === "Razılaşdı" && advCheck === "beli") {
+                if((agentBudgets[currentAgent] || 0) < advAmt) {
+                    alert("Bonus büdcənizdə bu qədər məbləğ yoxdur!");
+                    return;
+                }
+                agentBudgets[currentAgent] -= advAmt;
+            }
+
             let visitLabel = `Həkim Ziyarəti (${agr})`;
 
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: doc, 
-                type: visitLabel, drug: "-", qty: "-", totalAmount: advAmt, bonusAmount: 0, netAmount: advAmt, isDoctorAdvance: (agr === "Razılaşdı" && advCheck === "beli"), advAmt: advAmt 
+                type: visitLabel, drug: "-", qty: "-", totalAmount: 0, bonusAmount: 0, netAmount: 0, doctorPay: (agr === "Razılaşdı" && advCheck === "beli") ? advAmt : 0 
             });
 
             sampleLocations.push({ name: doc, region: region, type: "Həkim", lat: 40.4093, lon: 49.8671, address: "Təzə qeydiyyat" });
@@ -813,26 +838,27 @@
             if(!objName) { alert("Aptekin adını daxil edin!"); return; }
             if(activeCart.length === 0) { alert("Səbətə məhsul əlavə edin!"); return; }
 
-            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = { region: region, lat: 40.4093, lon: 49.8671, address: "Yeni ünvan", stock: {} };
-
+            // Yeni aptek dərhal cari apteklər bazasına (pharmacyDebts) və xəritəyə əlavə olunur
+            let newPharmStock = {};
             activeCart.forEach(item => {
                 let keys = Object.keys(productsDB);
                 let idx = keys.indexOf(item.drug);
                 if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
 
                 if(item.mode === 'nisye') {
-                    pharmacyDebts[objName].stock[item.drug] = (pharmacyDebts[objName].stock[item.drug] || 0) + item.qty;
+                    newPharmStock[item.drug] = (newPharmStock[item.drug] || 0) + item.qty;
                 }
 
                 visitReports.push({ 
                     date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: objName, 
                     type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd Satış'})`, 
                     drug: item.drug, qty: item.qty, 
-                    totalAmount: item.totalAmount, bonusAmount: 0, netAmount: item.totalAmount 
+                    totalAmount: item.totalAmount, bonusAmount: 0, netAmount: item.totalAmount, doctorPay: 0 
                 });
             });
 
-            sampleLocations.push({ name: objName, region: region, type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Yeni qeyd" });
+            pharmacyDebts[objName] = { region: region, lat: 40.4150, lon: 49.8550, address: "Yeni qeydiyyat aptek", stock: newPharmStock };
+            sampleLocations.push({ name: objName, region: region, type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Yeni qeydiyyat" });
 
             document.getElementById("newPharmacyName").value = "";
             document.getElementById("newManagerName").value = "";
@@ -843,8 +869,9 @@
 
         updateAgentStockDisplay();
         updateAdminTotalStock();
+        updateAdminAgentBudgets();
         initUserMap();
-        alert("Check-in uğurla tamamlandı və xəritəyə əlavə olundu!");
+        alert("Check-in uğurla tamamlandı və cari apteklər siyahısına əlavə olundu!");
     }
 
     function filterRouteReport() {
@@ -876,7 +903,7 @@
         }
 
         filtered.forEach(r => {
-            let docPayText = (r.isDoctorAdvance) ? `<b>${r.advAmt} ₼ (İlkin ödəniş)</b>` : "-";
+            let docPayText = (r.doctorPay && r.doctorPay > 0) ? `<b>${r.doctorPay} ₼</b>` : "-";
             let tr = document.createElement("tr");
             tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.region}</td><td>${r.obj}</td><td>${r.type}</td><td>${docPayText}</td>`;
             tbody.appendChild(tr);
