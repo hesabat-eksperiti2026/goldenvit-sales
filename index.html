@@ -62,10 +62,6 @@
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 6px; font-size: 12px; }
         .debt-box { background: #fff3e0; border: 1px solid #ffe082; padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 12px; color: #e65100; }
         .nav-btn { background: #0277bd; margin-top: 8px; }
-
-        /* Tam ekran popup pəncərələr (Modal overlay) */
-        .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box; }
-        .modal-content { background: #fff; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -241,52 +237,97 @@
             <input type="date" id="workDate" value="2026-07-27">
         </div>
 
+        <!-- 1. APTEK STOKU (Yuxarıda) -->
+        <div class="card" style="border: 2px solid #0277bd; background: #e1f5fe;">
+            <h3>🏪 Aptek Stoku & Nağdlaşdırma</h3>
+            <label>Rayon / Şəhər Seçin:</label>
+            <select id="stockRegionSelect" onchange="populateStockPharmacies()">
+                <option value="">-- Rayon Seçin --</option>
+            </select>
+
+            <label>Aptek Seçin:</label>
+            <select id="stockPharmacySelect" onchange="showPharmacyStockDetails()">
+                <option value="">-- Əvvəlcə rayon seçin --</option>
+            </select>
+
+            <div id="pharmacyStockDetailView" class="hidden" style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #b3e5fc;">
+                <div id="pharmacyStockListContent"></div>
+                
+                <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
+                <select id="pharmacyOpType">
+                    <option value="nagdlashdirma">Satılanı Nağdlaşdır (Pulunu al)</option>
+                    <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
+                </select>
+
+                <label>Məhsul:</label>
+                <select id="pharmacyStockDrug">
+                    <option value="Golden Flexty">Golden Flexty (25₼)</option>
+                    <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
+                    <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
+                    <option value="Golden Immunix">Golden Immunix (23₼)</option>
+                    <option value="Golden Biotin">Golden Biotin (30₼)</option>
+                    <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
+                    <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
+                    <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                </select>
+
+                <label>Miqdar (Qutu):</label>
+                <input type="number" id="pharmacyStockQty" value="1" min="1">
+
+                <button type="button" style="background: #0277bd;" onclick="executePharmacyStockOp()">Təsdiq Et & Qeydə Al</button>
+                <a id="pharmacyWazeBtn" href="#" target="_blank" class="nav-btn" style="display:block; text-align:center; padding:10px; color:white; text-decoration:none; border-radius:6px; font-size:14px; font-weight:bold; margin-top:8px;">🚗 Waze ilə Yol Tərifi Al</a>
+            </div>
+        </div>
+
+        <!-- 2. ÜMUMİ İŞÇİ STOKU - ÇANTADAKI (Ortada) -->
         <div class="card">
             <h3>🎒 Çantamdakı Dərman Stoku</h3>
             <div id="stockList"></div>
         </div>
 
-        <!-- Sürətli Əməliyyat Düymələri (Xəritədən Yuxarıda) -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
-            <button style="background: #0277bd; margin:0; font-size: 13px;" onclick="openPharmacyStockModal()">🏪 Aptek Stoku</button>
-            <button style="background: #ffa000; margin:0; font-size: 13px;" onclick="openVisitFormModal()">📝 Yeni Ziyarət</button>
-        </div>
+        <!-- 3. ZİYARƏT FORMU (Daha Aşağıda) -->
+        <div class="card" style="border: 2px solid var(--secondary); background: #f1f8e9;">
+            <h3>📝 Yeni Ziyarət Formu</h3>
+            <label>Rayon / Şəhər:</label>
+            <select id="regionSelect"></select>
 
-        <!-- Xəritə Həmişə Aşağıda -->
-        <div class="card">
-            <h3>🔍 Ərazi Xəritəsi və Obyektlər</h3>
-            <div id="map"></div>
-        </div>
+            <label>Ziyarət Növü:</label>
+            <select id="visitType" onchange="toggleVisitFields()">
+                <option value="hekim">Həkim Ziyarəti</option>
+                <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat)</option>
+            </select>
 
-        <!-- APTEK STOKU MODAL (Tam Pəncərə) -->
-        <div id="pharmacyStockModal" class="fullscreen-modal hidden">
-            <div class="modal-content">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0; color: #01579b;">🏪 Aptek Stoku İdarəetməsi</h3>
-                    <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closePharmacyStockModal()">Bağla</button>
-                </div>
+            <!-- Həkim -->
+            <div id="hekimFields" class="visit-section">
+                <label>Həkimin Adı və Soyadı:</label>
+                <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov">
+                <label>Əlaqə Nömrəsi:</label>
+                <input type="text" id="doctorPhone" placeholder="050-000-00-00">
+                <label>Ressept Razılığı:</label>
+                <select id="doctorAgreement">
+                    <option value="Razılaşdı">Razılaşdı (Resseptə yazır)</option>
+                    <option value="Düşünür">Düşünür / Təkrar görüş</option>
+                </select>
+            </div>
 
-                <label>Rayon / Şəhər Seçin:</label>
-                <select id="stockRegionSelect" onchange="populateStockPharmacies()">
-                    <option value="">-- Rayon Seçin --</option>
+            <!-- Yeni Aptek -->
+            <div id="yeniAptekFields" class="visit-section hidden">
+                <label>Aptekin Adı:</label>
+                <input type="text" id="newPharmacyName" placeholder="Zəfər Aptek">
+                <label>Müdirin Adı Soyadı:</label>
+                <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
+                <label>Əlaqə Nömrəsi:</label>
+                <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
+                
+                <label>Satış Növü:</label>
+                <select id="newSaleType">
+                    <option value="nisye">Nisyə Ver</option>
+                    <option value="nagd">Nağd Sat</option>
                 </select>
 
-                <label>Aptek Seçin:</label>
-                <select id="stockPharmacySelect" onchange="showPharmacyStockDetails()">
-                    <option value="">-- Əvvəlcə rayon seçin --</option>
-                </select>
-
-                <div id="pharmacyStockDetailView" class="hidden" style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #b3e5fc;">
-                    <div id="pharmacyStockListContent"></div>
-                    
-                    <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
-                    <select id="pharmacyOpType">
-                        <option value="nagdlashdirma">Satılanı Nağdlaşdır (Pulunu al)</option>
-                        <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
-                    </select>
-
+                <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
                     <label>Məhsul:</label>
-                    <select id="pharmacyStockDrug">
+                    <select id="newDrugSelect">
                         <option value="Golden Flexty">Golden Flexty (25₼)</option>
                         <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
                         <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
@@ -296,82 +337,20 @@
                         <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
                         <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
                     </select>
-
                     <label>Miqdar (Qutu):</label>
-                    <input type="number" id="pharmacyStockQty" value="1" min="1">
-
-                    <button type="button" style="background: #0277bd;" onclick="executePharmacyStockOp()">Təsdiq Et & Qeydə Al</button>
-                    <a id="pharmacyWazeBtn" href="#" target="_blank" class="nav-btn" style="display:block; text-align:center; padding:10px; color:white; text-decoration:none; border-radius:6px; font-size:14px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>
+                    <input type="number" id="newDrugQty" value="1" min="1">
+                    <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addNewPharmacyItem()">➕ Səbətə Əlavə Et</button>
                 </div>
+                <div id="newCartList" style="margin-top:6px;"></div>
             </div>
+
+            <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
         </div>
 
-        <!-- ZİYARƏT FORMU MODAL (Tam Pəncərə) -->
-        <div id="visitFormModal" class="fullscreen-modal hidden">
-            <div class="modal-content" style="border: 2px solid var(--secondary);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0;">📝 Yeni Ziyarət Formu</h3>
-                    <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeVisitFormModal()">Bağla</button>
-                </div>
-
-                <label>Rayon / Şəhər:</label>
-                <select id="regionSelect"></select>
-
-                <label>Ziyarət Növü:</label>
-                <select id="visitType" onchange="toggleVisitFields()">
-                    <option value="hekim">Həkim Ziyarəti</option>
-                    <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat)</option>
-                </select>
-
-                <!-- Həkim -->
-                <div id="hekimFields" class="visit-section">
-                    <label>Həkimin Adı və Soyadı:</label>
-                    <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov">
-                    <label>Əlaqə Nömrəsi:</label>
-                    <input type="text" id="doctorPhone" placeholder="050-000-00-00">
-                    <label>Ressept Razılığı:</label>
-                    <select id="doctorAgreement">
-                        <option value="Razılaşdı">Razılaşdı (Resseptə yazır)</option>
-                        <option value="Düşünür">Düşünür / Təkrar görüş</option>
-                    </select>
-                </div>
-
-                <!-- Yeni Aptek -->
-                <div id="yeniAptekFields" class="visit-section hidden">
-                    <label>Aptekin Adı:</label>
-                    <input type="text" id="newPharmacyName" placeholder="Zəfər Aptek">
-                    <label>Müdirin Adı Soyadı:</label>
-                    <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
-                    <label>Əlaqə Nömrəsi:</label>
-                    <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
-                    
-                    <label>Satış Növü:</label>
-                    <select id="newSaleType">
-                        <option value="nisye">Nisyə Ver</option>
-                        <option value="nagd">Nağd Sat</option>
-                    </select>
-
-                    <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
-                        <label>Məhsul:</label>
-                        <select id="newDrugSelect">
-                            <option value="Golden Flexty">Golden Flexty (25₼)</option>
-                            <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
-                            <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
-                            <option value="Golden Immunix">Golden Immunix (23₼)</option>
-                            <option value="Golden Biotin">Golden Biotin (30₼)</option>
-                            <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
-                            <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
-                            <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
-                        </select>
-                        <label>Miqdar (Qutu):</label>
-                        <input type="number" id="newDrugQty" value="1" min="1">
-                        <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addNewPharmacyItem()">➕ Səbətə Əlavə Et</button>
-                    </div>
-                    <div id="newCartList" style="margin-top:6px;"></div>
-                </div>
-
-                <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
-            </div>
+        <!-- 4. XƏRİTƏ (Ən Altdada) -->
+        <div class="card">
+            <h3>🔍 Ərazi Xəritəsi və Obyektlər</h3>
+            <div id="map"></div>
         </div>
 
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
@@ -552,17 +531,6 @@
             updateAdminTotalStock();
         }
     }
-
-    // Modal idarəetmələri
-    function openPharmacyStockModal() { document.getElementById("pharmacyStockModal").classList.remove("hidden"); }
-    function closePharmacyStockModal() { document.getElementById("pharmacyStockModal").classList.add("hidden"); document.getElementById("pharmacyStockDetailView").classList.add("hidden"); }
-
-    function openVisitFormModal() { 
-        activeCart = [];
-        document.getElementById("newCartList").innerHTML = "";
-        document.getElementById("visitFormModal").classList.remove("hidden"); 
-    }
-    function closeVisitFormModal() { document.getElementById("visitFormModal").classList.add("hidden"); }
 
     function populateStockPharmacies() {
         let reg = document.getElementById("stockRegionSelect").value;
@@ -752,7 +720,8 @@
         updateAgentStockDisplay();
         updateAdminTotalStock();
         alert("Check-in uğurla tamamlandı və hesabata yazıldı!");
-        closeVisitFormModal();
+        activeCart = [];
+        document.getElementById("newCartList").innerHTML = "";
     }
 
     function filterRouteReport() {
