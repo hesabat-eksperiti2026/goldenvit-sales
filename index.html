@@ -61,6 +61,7 @@
         
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 6px; font-size: 12px; }
         .debt-box { background: #fff3e0; border: 1px solid #ffe082; padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 12px; color: #e65100; }
+        .nav-btn { background: #0277bd; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -104,20 +105,6 @@
             <input type="password" id="loginPassword" placeholder="Admin: 123, İşçi 1: 1..." style="padding: 10px;">
 
             <button onclick="login()">Sistemə Daxil Ol</button>
-        </div>
-
-        <div class="card">
-            <h3>💊 Əsas Aktiv Məhsullar</h3>
-            <div class="products-grid">
-                <div class="product-mini-card">Flexty (25₼)</div>
-                <div class="product-mini-card">Vit D3 (48₼)</div>
-                <div class="product-mini-card">Fish Oil (25₼)</div>
-                <div class="product-mini-card">Immunix (23₼)</div>
-                <div class="product-mini-card">Biotin (30₼)</div>
-                <div class="product-mini-card">Glutathione (24₼)</div>
-                <div class="product-mini-card">5HTP (23₼)</div>
-                <div class="product-mini-card">Curcuma (22₼)</div>
-            </div>
         </div>
     </div>
 
@@ -180,7 +167,7 @@
         </div>
 
         <div class="card">
-            <h3>📋 Ziyarət, Nağd Satış və Nisyə Cədvəli</h3>
+            <h3>📋 Ziyarət, Nağd və Nisyə Cədvəli</h3>
             <label>İşçi Seçin:</label>
             <select id="filterAgent" onchange="filterReport()">
                 <option value="all">Bütün İşçilər (Total)</option>
@@ -205,7 +192,7 @@
                         <th>Əməliyyat</th>
                         <th>Məhsul</th>
                         <th>Miqdar</th>
-                        <th>Məbləğ</th>
+                        <th>Nağd / Nisyə Məbləğ</th>
                     </tr>
                 </thead>
                 <tbody id="reportTableBody"></tbody>
@@ -228,40 +215,85 @@
             <div id="stockList"></div>
         </div>
 
+        <!-- YENİ BÖLMƏ: APTEK STOKU (Qalıq İdarəetməsi və Nağdlaşdırma) -->
+        <div class="card" style="border: 2px solid var(--primary); background: #f1f8e9;">
+            <h3>🏪 Aptek Stoku & Nisyə / Nağdlaşdırma</h3>
+            <p style="font-size: 11px; color: #558b2f; margin: 0 0 8px 0;">Apteklərdəki mövcud malları yoxlayın və nağdlaşdırın.</p>
+            <button style="background: var(--primary); margin-top: 0;" onclick="openPharmacyStockModal()">Aptek Stokunu Aç</button>
+        </div>
+
         <div class="card">
-            <h3>🔍 Aptek və Həkim Axtarışı</h3>
-            <label>Obyekt Adı Yazın:</label>
-            <input type="text" id="pharmacySearchInput" placeholder="Məs: Zeytun Aptek #4..." onkeyup="searchPharmacyOnMap()">
+            <h3>🔍 Ərazi Xəritəsi və Obyektlər</h3>
             <div id="map"></div>
         </div>
 
         <div class="card" style="text-align: center; background: #fff8e1; border-color: #ffe082;">
-            <h3>🚀 Yeni Ziyarət / Satış Qeydiyyatı</h3>
-            <button style="background: #ffa000; margin-top: 0;" onclick="openVisitFormModal()">Ziyarət Formunu Aç</button>
+            <h3>🚀 Yeni Ziyarət / İlk Qeydiyyat</h3>
+            <button style="background: #ffa000; margin-top: 0;" onclick="openVisitFormModal()">Yeni Ziyarət Formunu Aç</button>
         </div>
 
-        <!-- Ziyarət Formu -->
+        <!-- APTEK STOKU MODAL SƏHİFƏSİ -->
+        <div id="pharmacyStockModal" class="card hidden" style="border: 2px solid #0277bd; background: #e1f5fe;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <h3 style="margin: 0; color: #01579b;">🏪 Aptek Stoku İdarəetməsi</h3>
+                <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closePharmacyStockModal()">Bağla</button>
+            </div>
+
+            <label>Rayon / Şəhər Seçin:</label>
+            <select id="stockRegionSelect" onchange="populateStockPharmacies()">
+                <option value="">-- Rayon Seçin --</option>
+            </select>
+
+            <label>Aptek Seçin:</label>
+            <select id="stockPharmacySelect" onchange="showPharmacyStockDetails()">
+                <option value="">-- Əvvəlcə rayon seçin --</option>
+            </select>
+
+            <div id="pharmacyStockDetailView" class="hidden" style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #b3e5fc;">
+                <div id="pharmacyStockListContent"></div>
+                
+                <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
+                <select id="pharmacyOpType">
+                    <option value="nagdlashdirma">Satılanı Nağdlaşdır (Pulunu al)</option>
+                    <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
+                </select>
+
+                <label>Məhsul:</label>
+                <select id="pharmacyStockDrug">
+                    <option value="Golden Flexty">Golden Flexty (25₼)</option>
+                    <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
+                    <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
+                    <option value="Golden Immunix">Golden Immunix (23₼)</option>
+                    <option value="Golden Biotin">Golden Biotin (30₼)</option>
+                    <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
+                    <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
+                    <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                </select>
+
+                <label>Miqdar (Qutu):</label>
+                <input type="number" id="pharmacyStockQty" value="1" min="1">
+
+                <button type="button" style="background: #0277bd;" onclick="executePharmacyStockOp()">Təsdiq Et & Qeydə Al</button>
+                <a id="pharmacyWazeBtn" href="#" target="_blank" class="nav-btn" style="display:none; text-align:center; padding:10px; color:white; text-decoration:none; border-radius:6px; font-size:14px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>
+            </div>
+        </div>
+
+        <!-- Ziyarət Formu (Yalnız Yeni Aptek / Həkim üçün) -->
         <div id="visitFormCard" class="card hidden" style="border: 2px solid var(--secondary);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <h3 style="margin: 0;">📝 Ziyarət Formu</h3>
+                <h3 style="margin: 0;">📝 Yeni Ziyarət Formu</h3>
                 <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeVisitFormModal()">Bağla</button>
             </div>
 
             <label>Rayon / Şəhər:</label>
             <select id="regionSelect">
-                <option value="Bakı Mərkəz">Bakı Mərkəz</option>
-                <option value="Şirvan">Şirvan / Salyan</option>
-                <option value="Gəncə">Gəncə / Tovuz</option>
-                <option value="Şəki">Şəki / Qəbələ</option>
-                <option value="Lənkəran">Lənkəran / Astara</option>
-                <option value="Quba">Quba / Xaçmaz</option>
+                <!-- Dinamik işçiyə uyğun doldurulacaq -->
             </select>
 
             <label>Ziyarət Növü:</label>
             <select id="visitType" onchange="toggleVisitFields()">
                 <option value="hekim">Həkim Ziyarəti</option>
-                <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat / Mal Verilişi)</option>
-                <option value="cari_aptek">Cari Aptek (Növbəti Ziyarət / Nağdlaşdırma)</option>
+                <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat)</option>
             </select>
 
             <!-- Həkim -->
@@ -286,10 +318,10 @@
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
                 
-                <label>Satış növü:</label>
-                <select id="newSaleType" onchange="toggleNewSaleType()">
-                    <option value="nisye">Nisyə (Konsiqnasiya)</option>
-                    <option value="nagd">Birbaşa Nağd Satış</option>
+                <label>Satış Növü:</label>
+                <select id="newSaleType">
+                    <option value="nisye">Nisyə Ver</option>
+                    <option value="nagd">Nağd Sat</option>
                 </select>
 
                 <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
@@ -311,51 +343,6 @@
                 <div id="newCartList" style="margin-top:6px;"></div>
             </div>
 
-            <!-- Cari Aptek -->
-            <div id="cariAptekFields" class="visit-section hidden">
-                <label>Mövcud Aptek:</label>
-                <select id="existingPharmacySelect" onchange="onCariPharmacySelected()">
-                    <option value="">-- Aptek Seçin --</option>
-                    <option value="Zeytun Aptek #4" data-lat="40.4150" data-lon="49.8550">Zeytun Aptek #4</option>
-                    <option value="Ailə Apteki" data-lat="40.4020" data-lon="49.8800">Ailə Apteki</option>
-                    <option value="Nizami Aptek" data-lat="40.4200" data-lon="49.8400">Nizami Aptek</option>
-                </select>
-
-                <div id="wazeRouteBox" class="hidden" style="margin-top: 8px; padding: 8px; background: #e1f5fe; border-radius: 6px; text-align: center;">
-                    <a id="wazeLinkBtn" href="#" target="_blank" style="background:#0277bd; color:white; padding:6px 12px; text-decoration:none; border-radius:6px; display:inline-block; font-size:12px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>
-                </div>
-
-                <!-- Aptekin cari qalıqları -->
-                <div id="pharmacyDebtInfo" class="debt-box hidden"></div>
-
-                <div id="cariActionContainer" class="hidden" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
-                    <label>Əməliyyat Seçin:</label>
-                    <select id="cariOpType" onchange="toggleCariOpFields()">
-                        <option value="nagdlashdirma">1. Aptekdəki Nisyə Malı Nağdlaşdır (Pulunu Al)</option>
-                        <option value="elave_nisye">2. Aptekə Əlavə Nisyə Mal Ver</option>
-                        <option value="birbasa_nagd">3. Aptekə Birbaşa Nağd Satış Et</option>
-                    </select>
-
-                    <div id="cariInputsArea" style="margin-top: 8px;">
-                        <label>Məhsul:</label>
-                        <select id="cariDrugSelect">
-                            <option value="Golden Flexty">Golden Flexty (25₼)</option>
-                            <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
-                            <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
-                            <option value="Golden Immunix">Golden Immunix (23₼)</option>
-                            <option value="Golden Biotin">Golden Biotin (30₼)</option>
-                            <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
-                            <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
-                            <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
-                        </select>
-                        <label>Miqdar (Qutu):</label>
-                        <input type="number" id="cariDrugQty" value="1" min="1">
-                        <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addCariActionItem()">➕ Əməliyyatı Səbətə At</button>
-                    </div>
-                    <div id="cariCartList" style="margin-top:6px;"></div>
-                </div>
-            </div>
-
             <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
         </div>
 
@@ -370,6 +357,17 @@
     let adminMap = null;
     let currentAgent = "İşçi 1";
     let activeCart = [];
+
+    // İşçilərin ərazi bölgüsü
+    let agentRegions = {
+        "İşçi 1": ["Şirvan", "Salyan"],
+        "İşçi 2": ["Gəncə", "Tovuz"],
+        "İşçi 3": ["Şəki", "Qəbələ"],
+        "İşçi 4": ["Lənkəran", "Astara"],
+        "İşçi 5": ["Quba", "Xaçmaz"],
+        "İşçi 6": ["Sumqayıt", "Abşeron"],
+        "İşçi 7": ["Bakı Mərkəz"]
+    };
 
     let drugNames = [
         "Golden Flexty", 
@@ -405,22 +403,22 @@
 
     // Apteklərdə qalan nisyə mallar
     let pharmacyDebts = {
-        "Zeytun Aptek #4": { "Golden Flexty": 5, "Golden Vitamin D3": 3 },
-        "Ailə Apteki": { "Golden Biotin": 4 }
+        "Zeytun Aptek #4": { region: "Bakı Mərkəz", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12", stock: { "Golden Flexty": 5, "Golden Vitamin D3": 3 } },
+        "Ailə Apteki": { region: "Bakı Mərkəz", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45", stock: { "Golden Biotin": 4 } },
+        "Şəfa Aptek #9": { region: "Şirvan", lat: 39.9333, lon: 48.9167, address: "Mərkəzi küç.", stock: { "Golden Immunix": 6 } }
     };
 
     let visitReports = [
-        { date: "2026-07-27", dateTime: "2026-07-27 10:00:00", agent: "İşçi 7", obj: "Zeytun Aptek #4", type: "Yeni Aptek (Nisyə)", drug: "Golden Flexty", qty: 5, amount: "125 ₼ (Nisyə)" },
-        { date: "2026-07-27", dateTime: "2026-07-27 11:30:00", agent: "İşçi 1", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti (Razılaşdı)", drug: "-", qty: "-", amount: "-" }
+        { date: "2026-07-27", dateTime: "2026-07-27 10:00:00", agent: "İşçi 7", region: "Bakı Mərkəz", obj: "Zeytun Aptek #4", type: "Yeni Aptek (Nisyə)", drug: "Golden Flexty", qty: 5, amount: "125 ₼ (Nisyə)" },
+        { date: "2026-07-27", dateTime: "2026-07-27 11:30:00", agent: "İşçi 1", region: "Şirvan", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti", drug: "-", qty: "-", amount: "-" }
     ];
 
     let sampleLocations = [
-        { name: "Zeytun Aptek #4", type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12" },
-        { name: "Ailə Apteki", type: "Aptek", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45" },
-        { name: "Nizami Aptek", type: "Aptek", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8" },
-        { name: "Dr. Elçin Məmmədov", type: "Həkim", lat: 40.3950, lon: 49.8200, address: "Mərkəzi Klinika" },
-        { name: "Dr. Leyla Qasımova", type: "Həkim", lat: 40.4300, lon: 49.8700, address: "Baku Medical Plaza" },
-        { name: "Şəfa Aptek #9", type: "Aptek", lat: 40.3850, lon: 49.8600, address: "İ. Qutqaşenli küç." }
+        { name: "Zeytun Aptek #4", region: "Bakı Mərkəz", type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12" },
+        { name: "Ailə Apteki", region: "Bakı Mərkəz", type: "Aptek", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45" },
+        { name: "Nizami Aptek", region: "Bakı Mərkəz", type: "Aptek", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8" },
+        { name: "Dr. Elçin Məmmədov", region: "Şirvan", type: "Həkim", lat: 39.9333, lon: 48.9167, address: "Mərkəzi Klinika" },
+        { name: "Şəfa Aptek #9", region: "Şirvan", type: "Aptek", lat: 39.9400, lon: 48.9200, address: "İ. Qutqaşenli küç." }
     ];
 
     function login() {
@@ -443,6 +441,7 @@
             document.getElementById("agentBadge").innerText = "👤 " + currentAgent;
             
             updateAgentStockDisplay();
+            setupAgentRegions();
             setTimeout(() => { initUserMap(); }, 200);
         }
     }
@@ -479,6 +478,20 @@
         }
     }
 
+    function setupAgentRegions() {
+        let regions = agentRegions[currentAgent] || [];
+        let regSelect = document.getElementById("regionSelect");
+        let stockRegSelect = document.getElementById("stockRegionSelect");
+        
+        regSelect.innerHTML = "";
+        stockRegSelect.innerHTML = `<option value="">-- Rayon Seçin --</option>`;
+
+        regions.forEach(r => {
+            regSelect.innerHTML += `<option value="${r}">${r}</option>`;
+            stockRegSelect.innerHTML += `<option value="${r}">${r}</option>`;
+        });
+    }
+
     function updateAdminTotalStock() {
         let totals = new Array(8).fill(0);
         for(let agent in agentStocks) {
@@ -506,12 +519,106 @@
         }
     }
 
+    // Aptek Stoku Modalı
+    function openPharmacyStockModal() {
+        document.getElementById("pharmacyStockModal").classList.remove("hidden");
+    }
+    function closePharmacyStockModal() {
+        document.getElementById("pharmacyStockModal").classList.add("hidden");
+        document.getElementById("pharmacyStockDetailView").classList.add("hidden");
+    }
+
+    function populateStockPharmacies() {
+        let reg = document.getElementById("stockRegionSelect").value;
+        let pharmSelect = document.getElementById("stockPharmacySelect");
+        pharmSelect.innerHTML = `<option value="">-- Aptek Seçin --</option>`;
+        document.getElementById("pharmacyStockDetailView").classList.add("hidden");
+
+        if(!reg) return;
+
+        for(let pName in pharmacyDebts) {
+            if(pharmacyDebts[pName].region === reg) {
+                pharmSelect.innerHTML += `<option value="${pName}">${pName}</option>`;
+            }
+        }
+    }
+
+    function showPharmacyStockDetails() {
+        let pName = document.getElementById("stockPharmacySelect").value;
+        let detailView = document.getElementById("pharmacyStockDetailView");
+        let contentDiv = document.getElementById("pharmacyStockListContent");
+        let wazeBtn = document.getElementById("pharmacyWazeBtn");
+
+        if(!pName) {
+            detailView.classList.add("hidden");
+            return;
+        }
+
+        let pData = pharmacyDebts[pName];
+        let text = `<b>📦 ${pName} - Mövcud Nisyə Mallar:</b><br>`;
+        let hasStock = false;
+        
+        for(let d in pData.stock) {
+            if(pData.stock[d] > 0) {
+                text += `- ${d}: <b>${pData.stock[d]} qutu</b><br>`;
+                hasStock = true;
+            }
+        }
+
+        if(!hasStock) {
+            text += `<i>Bu aptekdə hazırda nisyə mal yoxdur.</i>`;
+        }
+
+        contentDiv.innerHTML = text;
+        wazeBtn.setAttribute("href", `https://www.waze.com/ul?ll=${pData.lat},${pData.lon}&navigate=yes`);
+        wazeBtn.style.display = "block";
+        detailView.classList.remove("hidden");
+    }
+
+    function executePharmacyStockOp() {
+        let pName = document.getElementById("stockPharmacySelect").value;
+        let opType = document.getElementById("pharmacyOpType").value;
+        let drug = document.getElementById("pharmacyStockDrug").value;
+        let qty = parseInt(document.getElementById("pharmacyStockQty").value) || 0;
+        let selectedDate = document.getElementById("workDate").value;
+        let timeNow = new Date().toLocaleTimeString();
+        let fullDateTime = `${selectedDate} ${timeNow}`;
+
+        if(!pName || qty <= 0) { alert("Məlumatları düzgün daxil edin!"); return; }
+
+        let pData = pharmacyDebts[pName];
+
+        if(opType === 'nagdlashdirma') {
+            let currentDebt = pData.stock[drug] || 0;
+            if(currentDebt < qty) {
+                alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} var. Bundan artıq nağdlaşdıra bilməzsən!`);
+                return;
+            }
+            pData.stock[drug] -= qty;
+            let amount = qty * drugPrices[drug];
+            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, type: "Nağdlaşdırma (Pul Alındı)", drug: drug, qty: qty, amount: `${amount} ₼ (Nağd)` });
+            alert(`Uğurlu Nağdlaşdırma!\n${qty} qutu ${drug} nağdlaşdırıldı (${amount} ₼).`);
+        } else {
+            let idx = drugNames.indexOf(drug);
+            if(agentStocks[currentAgent][idx] < qty) {
+                alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
+                return;
+            }
+            agentStocks[currentAgent][idx] -= qty;
+            pData.stock[drug] = (pData.stock[drug] || 0) + qty;
+            let amount = qty * drugPrices[drug];
+            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, type: "Əlavə Nisyə Mal", drug: drug, qty: qty, amount: `${amount} ₼ (Nisyə)` });
+            alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} əlavə nisyə olaraq verildi.`);
+        }
+
+        updateAgentStockDisplay();
+        updateAdminTotalStock();
+        showPharmacyStockDetails();
+    }
+
     function openVisitFormModal() { 
         activeCart = [];
         document.getElementById("newCartList").innerHTML = "";
-        document.getElementById("cariCartList").innerHTML = "";
-        document.getElementById("pharmacyDebtInfo").classList.add("hidden");
-        document.getElementById("cariActionContainer").classList.add("hidden");
         document.getElementById("visitFormCard").classList.remove("hidden"); 
     }
     
@@ -521,11 +628,9 @@
         let type = document.getElementById("visitType").value;
         document.getElementById("hekimFields").classList.add("hidden");
         document.getElementById("yeniAptekFields").classList.add("hidden");
-        document.getElementById("cariAptekFields").classList.add("hidden");
 
         if(type === "hekim") document.getElementById("hekimFields").classList.remove("hidden");
         if(type === "yeni_aptek") document.getElementById("yeniAptekFields").classList.remove("hidden");
-        if(type === "cari_aptek") document.getElementById("cariAptekFields").classList.remove("hidden");
     }
 
     function addNewPharmacyItem() {
@@ -564,129 +669,39 @@
         renderNewCart();
     }
 
-    function onCariPharmacySelected() {
-        let sel = document.getElementById("existingPharmacySelect");
-        let opt = sel.options[sel.selectedIndex];
-        let pharmacyName = sel.value;
-        let lat = opt.getAttribute("data-lat");
-        let lon = opt.getAttribute("data-lon");
-
-        if(lat && lon) {
-            let wazeUrl = `https://www.waze.com/ul?ll=${lat},${lon}&navigate=yes`;
-            document.getElementById("wazeLinkBtn").setAttribute("href", wazeUrl);
-            document.getElementById("wazeRouteBox").classList.remove("hidden");
-            if(map) map.setView([parseFloat(lat), parseFloat(lon)], 15);
-        } else {
-            document.getElementById("wazeRouteBox").classList.add("hidden");
-        }
-
-        if(pharmacyName) {
-            document.getElementById("cariActionContainer").classList.remove("hidden");
-            let debtBox = document.getElementById("pharmacyDebtInfo");
-            let debts = pharmacyDebts[pharmacyName];
-            
-            if(debts && Object.keys(debts).length > 0) {
-                let text = "<b>🛒 Bu aptekdə olan qalıq Nisyə mallar:</b><br>";
-                for(let d in debts) {
-                    if(debts[d] > 0) text += `- ${d}: <b>${debts[d]} qutu</b><br>`;
-                }
-                debtBox.innerHTML = text;
-                debtBox.classList.remove("hidden");
-            } else {
-                debtBox.innerHTML = "Bu aptekdə hazırda nisyə mal yoxdur.";
-                debtBox.classList.remove("hidden");
-            }
-        } else {
-            document.getElementById("cariActionContainer").classList.add("hidden");
-            document.getElementById("pharmacyDebtInfo").classList.add("hidden");
-        }
-    }
-
-    function addCariActionItem() {
-        let opType = document.getElementById("cariOpType").value;
-        let drug = document.getElementById("cariDrugSelect").value;
-        let qty = parseInt(document.getElementById("cariDrugQty").value) || 0;
-        let pharmacyName = document.getElementById("existingPharmacySelect").value;
-
-        if(qty <= 0) { alert("Miqdar düzgün deyil!"); return; }
-
-        if(opType === 'nagdlashdirma') {
-            let debts = pharmacyDebts[pharmacyName] || {};
-            let currentDebt = debts[drug] || 0;
-            let alreadyInCart = activeCart.filter(i => i.mode === 'nagdlashdirma' && i.drug === drug).reduce((s, i) => s + i.qty, 0);
-            if(currentDebt < (alreadyInCart + qty)) {
-                alert(`Bu aptekdə cəmi ${currentDebt} qutu nisyə var. Bundan artıq nağdlaşdıra bilməzsən!`);
-                return;
-            }
-        } else if(opType === 'elave_nisye' || opType === 'birbasa_nagd') {
-            let idx = drugNames.indexOf(drug);
-            let currentStock = agentStocks[currentAgent][idx];
-            let alreadyInCart = activeCart.filter(i => (i.mode === 'elave_nisye' || i.mode === 'birbasa_nagd') && i.drug === drug).reduce((s, i) => s + i.qty, 0);
-            if(currentStock < (alreadyInCart + qty)) {
-                alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
-                return;
-            }
-        }
-
-        let amount = qty * drugPrices[drug];
-        activeCart.push({ drug: drug, qty: qty, mode: opType, amount: amount });
-        renderCariCart();
-    }
-
-    function renderCariCart() {
-        let container = document.getElementById("cariCartList");
-        container.innerHTML = "";
-        activeCart.forEach((item, index) => {
-            let label = "";
-            if(item.mode === 'nagdlashdirma') label = `Nağdlaşdırma (Pul Alındı): ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
-            else if(item.mode === 'elave_nisye') label = `Əlavə Nisyə: ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
-            else label = `Birbaşa Nağd Satış: ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
-
-            container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeCariCart(${index})">Sil</button></div>`;
-        });
-    }
-
-    function removeCariCart(index) {
-        activeCart.splice(index, 1);
-        renderCariCart();
-    }
-
     function initUserMap() {
         if(map) { map.remove(); }
-        map = L.map('map').setView([40.4093, 49.8671], 13);
+        map = L.map('map').setView([40.4093, 49.8671], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-        sampleLocations.forEach(loc => {
-            let marker = L.marker([loc.lat, loc.lon]).addTo(map);
-            let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>${loc.address}<br><br>` +
-                `<a href="https://www.waze.com/ul?ll=${loc.lat},${loc.lon}&navigate=yes" target="_blank" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>`;
-            marker.bindPopup(popupContent);
-        });
-    }
+        let allowedRegions = agentRegions[currentAgent] || [];
 
-    function searchPharmacyOnMap() {
-        let query = document.getElementById("pharmacySearchInput").value.toLowerCase();
-        let found = sampleLocations.find(l => l.name.toLowerCase().includes(query));
-        if(found && map) { map.setView([found.lat, found.lon], 16); }
+        sampleLocations.forEach(loc => {
+            if(allowedRegions.includes(loc.region)) {
+                let marker = L.marker([loc.lat, loc.lon]).addTo(map);
+                let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>${loc.address}<br><br>` +
+                    `<a href="https://www.waze.com/ul?ll=${loc.lat},${loc.lon}&navigate=yes" target="_blank" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>`;
+                marker.bindPopup(popupContent);
+            }
+        });
     }
 
     function initAdminMap() {
         if(adminMap) { adminMap.remove(); }
-        adminMap = L.map('adminMap').setView([40.4093, 49.8671], 12);
+        adminMap = L.map('adminMap').setView([40.4093, 49.8671], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(adminMap);
 
         sampleLocations.forEach(loc => {
             let marker = L.marker([loc.lat, loc.lon]).addTo(adminMap);
-            let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>${loc.address}<br><br>` +
-                `<a href="https://www.waze.com/ul?ll=${loc.lat},${loc.lon}&navigate=yes" target="_blank" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>`;
+            let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>Rayon: ${loc.region}<br>${loc.address}`;
             marker.bindPopup(popupContent);
         });
     }
 
     function submitVisit() {
         let selectedDate = document.getElementById("workDate").value;
+        let region = document.getElementById("regionSelect").value;
         let type = document.getElementById("visitType").value;
-        let objName = "";
         let timeNow = new Date().toLocaleTimeString();
         let fullDateTime = `${selectedDate} ${timeNow}`;
 
@@ -694,43 +709,21 @@
             let doc = document.getElementById("doctorName").value;
             let agr = document.getElementById("doctorAgreement").value;
             if(!doc) { alert("Həkimin adını daxil edin!"); return; }
-            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: doc, type: `Həkim Ziyarəti (${agr})`, drug: "-", qty: "-", amount: "-" });
-        } else if(type === "yeni_aptek") {
-            objName = document.getElementById("newPharmacyName").value;
+            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: doc, type: `Həkim Ziyarəti (${agr})`, drug: "-", qty: "-", amount: "-" });
+        } else {
+            let objName = document.getElementById("newPharmacyName").value;
             if(!objName) { alert("Aptekin adını daxil edin!"); return; }
             if(activeCart.length === 0) { alert("Səbətə məhsul əlavə edin!"); return; }
 
-            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = {};
+            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = { region: region, lat: 40.4150, lon: 49.8550, address: "Yeni ünvan", stock: {} };
 
             activeCart.forEach(item => {
                 if(item.mode === 'nisye') {
                     let idx = drugNames.indexOf(item.drug);
                     if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
-                    pharmacyDebts[objName][item.drug] = (pharmacyDebts[objName][item.drug] || 0) + item.qty;
+                    pharmacyDebts[objName].stock[item.drug] = (pharmacyDebts[objName].stock[item.drug] || 0) + item.qty;
                 }
-                visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd'})`, drug: item.drug, qty: item.qty, amount: `${item.amount} ₼` });
-            });
-        } else {
-            objName = document.getElementById("existingPharmacySelect").value;
-            if(!objName) { alert("Aptek seçin!"); return; }
-            if(activeCart.length === 0) { alert("Səbətə əməliyyat əlavə edin!"); return; }
-
-            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = {};
-
-            activeCart.forEach(item => {
-                if(item.mode === 'nagdlashdirma') {
-                    pharmacyDebts[objName][item.drug] -= item.qty;
-                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Nağdlaşdırma (Pul Alındı)", drug: item.drug, qty: item.qty, amount: `${item.amount} ₼ (Nağd)` });
-                } else if(item.mode === 'elave_nisye') {
-                    let idx = drugNames.indexOf(item.drug);
-                    if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
-                    pharmacyDebts[objName][item.drug] = (pharmacyDebts[objName][item.drug] || 0) + item.qty;
-                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Cari Aptek - Əlavə Nisyə", drug: item.drug, qty: item.qty, amount: `${item.amount} ₼ (Nisyə)` });
-                } else {
-                    let idx = drugNames.indexOf(item.drug);
-                    if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
-                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Cari Aptek - Birbaşa Nağd", drug: item.drug, qty: item.qty, amount: `${item.amount} ₼ (Nağd)` });
-                }
+                visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: objName, type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd'})`, drug: item.drug, qty: item.qty, amount: `${item.amount} ₼` });
             });
         }
 
