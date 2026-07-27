@@ -56,12 +56,10 @@
         .stat-num { font-size: 18px; font-weight: 800; color: var(--primary); }
         .stat-label { font-size: 10px; color: #558b2f; font-weight: 700; text-transform: uppercase; }
 
-        .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
-        .product-mini-card { background: #fff; border: 1px solid #dcedc8; border-radius: 8px; padding: 6px; text-align: center; font-size: 10px; font-weight: 600; color: var(--primary); }
-        
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 6px; font-size: 12px; }
-        .debt-box { background: #fff3e0; border: 1px solid #ffe082; padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 12px; color: #e65100; }
-        .nav-btn { background: #0277bd; margin-top: 8px; }
+        .calc-total-box { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; color: var(--primary); text-align: right; font-size: 13px; }
+        .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box; }
+        .modal-content { background: #fff; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -80,7 +78,7 @@
             
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-num">8</div>
+                    <div class="stat-num">9</div>
                     <div class="stat-label">Aktiv Məhsul</div>
                 </div>
                 <div class="stat-box">
@@ -112,7 +110,7 @@
     <div id="adminPanel" class="hidden">
         <div style="display: flex; gap: 6px; margin-bottom: 10px;">
             <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #0277bd;" onclick="showRouteReportPage()">🛣️ Rut Hesabatı</button>
-            <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #2e7d32;" onclick="showStockReportPage()">📦 Stok Hesabatı</button>
+            <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #2e7d32;" onclick="showStockReportPage()">📦 Stok & Satış Hesabatı</button>
         </div>
         
         <div class="card" style="background: #e8f5e9; border: 1px solid var(--primary);">
@@ -130,14 +128,7 @@
 
             <label>Məhsul:</label>
             <select id="transferDrugSelect">
-                <option value="Golden Flexty">Golden Flexty (25₼)</option>
-                <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
-                <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
-                <option value="Golden Immunix">Golden Immunix (23₼)</option>
-                <option value="Golden Biotin">Golden Biotin (30₼)</option>
-                <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
-                <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
-                <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                <!-- Dinamik doldurulacaq -->
             </select>
 
             <label>Miqdar (Qutu):</label>
@@ -181,7 +172,7 @@
             </select>
             
             <label>Tarix:</label>
-            <input type="date" id="filterRouteDate" value="2026-07-27" onchange="filterRouteReport()">
+            <input type="date" id="filterRouteDate" value="2026-07-28" onchange="filterRouteReport()">
 
             <div id="routeSummaryBox" class="stats-grid" style="margin-top: 10px;"></div>
 
@@ -209,7 +200,22 @@
         </div>
 
         <div class="card">
-            <h3>📋 Aptek Üzrə Nağd və Nisyə Balansı</h3>
+            <h3>📋 Aptek Üzrə Nağd, Nisyə və Bonus Balansı</h3>
+            <label>İşçi Seçin:</label>
+            <select id="filterStockAgent" onchange="filterStockReport()">
+                <option value="all">Bütün İşçilər</option>
+                <option value="İşçi 1">İşçi 1</option>
+                <option value="İşçi 2">İşçi 2</option>
+                <option value="İşçi 3">İşçi 3</option>
+                <option value="İşçi 4">İşçi 4</option>
+                <option value="İşçi 5">İşçi 5</option>
+                <option value="İşçi 6">İşçi 6</option>
+                <option value="İşçi 7">İşçi 7 (Bakı Mərkəz)</option>
+            </select>
+
+            <label>Tarix:</label>
+            <input type="date" id="filterStockDate" value="2026-07-28" onchange="filterStockReport()">
+
             <table>
                 <thead>
                     <tr>
@@ -218,12 +224,15 @@
                         <th>Aptek</th>
                         <th>Əməliyyat</th>
                         <th>Məhsul</th>
-                        <th>Miqdar</th>
-                        <th>Məbləğ</th>
+                        <th>Miq</th>
+                        <th>Ümumi</th>
+                        <th>Bonus</th>
+                        <th>Net Məbləğ</th>
                     </tr>
                 </thead>
                 <tbody id="stockReportTableBody"></tbody>
             </table>
+            <div id="adminStockCalcBox" class="calc-total-box"></div>
         </div>
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
     </div>
@@ -234,7 +243,7 @@
         
         <div class="card" style="background: #e8f5e9; border-color: #c8e6c9;">
             <label style="color: var(--primary);">📅 İş Gününü Seçin:</label>
-            <input type="date" id="workDate" value="2026-07-27">
+            <input type="date" id="workDate" value="2026-07-28">
         </div>
 
         <!-- 1. APTEK STOKU (Yuxarıda) -->
@@ -261,14 +270,7 @@
 
                 <label>Məhsul:</label>
                 <select id="pharmacyStockDrug">
-                    <option value="Golden Flexty">Golden Flexty (25₼)</option>
-                    <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
-                    <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
-                    <option value="Golden Immunix">Golden Immunix (23₼)</option>
-                    <option value="Golden Biotin">Golden Biotin (30₼)</option>
-                    <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
-                    <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
-                    <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                    <!-- Dinamik doldurulacaq -->
                 </select>
 
                 <label>Miqdar (Qutu):</label>
@@ -285,7 +287,7 @@
             <div id="stockList"></div>
         </div>
 
-        <!-- 3. ZİYARƏT FORMU (Daha Aşağıda) -->
+        <!-- 3. ZİYARƏT FORMU -->
         <div class="card" style="border: 2px solid var(--secondary); background: #f1f8e9;">
             <h3>📝 Yeni Ziyarət Formu</h3>
             <label>Rayon / Şəhər:</label>
@@ -304,10 +306,23 @@
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="doctorPhone" placeholder="050-000-00-00">
                 <label>Ressept Razılığı:</label>
-                <select id="doctorAgreement">
+                <select id="doctorAgreement" onchange="toggleDoctorAgreement()">
                     <option value="Razılaşdı">Razılaşdı (Resseptə yazır)</option>
-                    <option value="Düşünür">Düşünür / Təkrar görüş</option>
+                    <option value="Razılaşmadı">Razılaşmadı</option>
                 </select>
+
+                <div id="doctorAdvanceBox" style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 6px; border: 1px dashed #b0bec5;">
+                    <label>İlkin ödəniş edildimi?</label>
+                    <select id="doctorAdvanceCheck" onchange="toggleDoctorAdvanceInput()">
+                        <option value="xeyr">Xeyr</option>
+                        <option value="beli">Bəli</option>
+                    </select>
+
+                    <div id="doctorAdvanceAmountBox" class="hidden" style="margin-top: 6px;">
+                        <label>Ödəniş Məbləği (AZN):</label>
+                        <input type="number" id="doctorAdvanceAmount" value="0" min="0">
+                    </div>
+                </div>
             </div>
 
             <!-- Yeni Aptek -->
@@ -319,23 +334,16 @@
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
                 
-                <label>Satış Növü:</label>
+                <label>Satış Növü (Bonus Hesablanması üçün):</label>
                 <select id="newSaleType">
-                    <option value="nisye">Nisyə Ver</option>
-                    <option value="nagd">Nağd Sat</option>
+                    <option value="serbest">Aptekin Sərbəst Satışı (Bonuslu)</option>
+                    <option value="resept">Həkim Ressepti ilə (Bonussuz)</option>
                 </select>
 
                 <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
                     <label>Məhsul:</label>
                     <select id="newDrugSelect">
-                        <option value="Golden Flexty">Golden Flexty (25₼)</option>
-                        <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
-                        <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
-                        <option value="Golden Immunix">Golden Immunix (23₼)</option>
-                        <option value="Golden Biotin">Golden Biotin (30₼)</option>
-                        <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
-                        <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
-                        <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                        <!-- Dinamik doldurulacaq -->
                     </select>
                     <label>Miqdar (Qutu):</label>
                     <input type="number" id="newDrugQty" value="1" min="1">
@@ -347,7 +355,7 @@
             <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
         </div>
 
-        <!-- 4. XƏRİTƏ (Ən Altdada) -->
+        <!-- 4. XƏRİTƏ (Ən Altda) -->
         <div class="card">
             <h3>🔍 Ərazi Xəritəsi və Obyektlər</h3>
             <div id="map"></div>
@@ -365,6 +373,19 @@
     let currentAgent = "İşçi 1";
     let activeCart = [];
 
+    // Yeni 9 aktiv məhsul, qiymətləri və bonusları
+    let productsDB = {
+        "Golden Biotin n60": { price: 28, bonus: 5 },
+        "Golden Bromelain n30": { price: 23, bonus: 4 },
+        "Golden Curcuma n30": { price: 21, bonus: 4 },
+        "Golden Hepanox n30": { price: 23, bonus: 4 },
+        "Golden Iron n60": { price: 26, bonus: 5 },
+        "Golden Immunix n30": { price: 23, bonus: 4 },
+        "Golden 5HTP n30": { price: 21, bonus: 4 },
+        "Golden Iodium 15 ml": { price: 14, bonus: 2.5 },
+        "Golden Glutathione n30": { price: 23, bonus: 4 }
+    };
+
     let agentRegions = {
         "İşçi 1": ["Şirvan", "Salyan"],
         "İşçi 2": ["Gəncə", "Tovuz"],
@@ -375,47 +396,25 @@
         "İşçi 7": ["Bakı Mərkəz"]
     };
 
-    let drugNames = [
-        "Golden Flexty", 
-        "Golden Vitamin D3", 
-        "Golden Fish Oil", 
-        "Golden Immunix", 
-        "Golden Biotin", 
-        "Golden Glutathione", 
-        "Golden 5HTP", 
-        "Golden Curcuma"
-    ];
-
-    let drugPrices = {
-        "Golden Flexty": 25,
-        "Golden Vitamin D3": 48,
-        "Golden Fish Oil": 25,
-        "Golden Immunix": 23,
-        "Golden Biotin": 30,
-        "Golden Glutathione": 24,
-        "Golden 5HTP": 23,
-        "Golden Curcuma": 22
-    };
-
     let agentStocks = {
-        "İşçi 1": [10, 15, 8, 10, 12, 10, 14, 9],
-        "İşçi 2": [10, 15, 8, 10, 12, 10, 14, 9],
-        "İşçi 3": [10, 15, 8, 10, 12, 10, 14, 9],
-        "İşçi 4": [10, 15, 8, 10, 12, 10, 14, 9],
-        "İşçi 5": [10, 15, 8, 10, 12, 10, 14, 9],
-        "İşçi 6": [10, 15, 8, 10, 12, 10, 14, 9],
-        "İşçi 7": [15, 20, 10, 15, 12, 10, 14, 10]
+        "İşçi 1": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+        "İşçi 2": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+        "İşçi 3": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+        "İşçi 4": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+        "İşçi 5": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+        "İşçi 6": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+        "İşçi 7": [15, 20, 10, 15, 12, 10, 14, 10, 12]
     };
 
     let pharmacyDebts = {
-        "Zeytun Aptek #4": { region: "Bakı Mərkəz", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12", stock: { "Golden Flexty": 5, "Golden Vitamin D3": 3 } },
-        "Ailə Apteki": { region: "Bakı Mərkəz", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45", stock: { "Golden Biotin": 4 } },
-        "Şəfa Aptek #9": { region: "Şirvan", lat: 39.9333, lon: 48.9167, address: "Mərkəzi küç.", stock: { "Golden Immunix": 6 } }
+        "Zeytun Aptek #4": { region: "Bakı Mərkəz", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12", stock: { "Golden Biotin n60": 5, "Golden Iron n60": 3 } },
+        "Ailə Apteki": { region: "Bakı Mərkəz", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45", stock: { "Golden Biotin n60": 4 } },
+        "Şəfa Aptek #9": { region: "Şirvan", lat: 39.9333, lon: 48.9167, address: "Mərkəzi küç.", stock: { "Golden Immunix n30": 6 } }
     };
 
     let visitReports = [
-        { date: "2026-07-27", dateTime: "2026-07-27 10:00:00", agent: "İşçi 7", region: "Bakı Mərkəz", obj: "Zeytun Aptek #4", type: "Yeni Aptek (Nisyə)", drug: "Golden Flexty", qty: 5, amount: "125 ₼ (Nisyə)" },
-        { date: "2026-07-27", dateTime: "2026-07-27 11:30:00", agent: "İşçi 1", region: "Şirvan", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti", drug: "-", qty: "-", amount: "-" }
+        { date: "2026-07-28", dateTime: "2026-07-28 10:00:00", agent: "İşçi 7", region: "Bakı Mərkəz", obj: "Zeytun Aptek #4", type: "Yeni Aptek (Sərbəst Satış)", drug: "Golden Biotin n60", qty: 5, totalAmount: 140, bonusAmount: 25, netAmount: 115 },
+        { date: "2026-07-28", dateTime: "2026-07-28 11:30:00", agent: "İşçi 1", region: "Şirvan", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti (Razılaşdı - İlkin ödəniş: 50 ₼)", drug: "-", qty: "-", totalAmount: 50, bonusAmount: 0, netAmount: 50 }
     ];
 
     let sampleLocations = [
@@ -426,6 +425,17 @@
         { name: "Şəfa Aptek #9", region: "Şirvan", type: "Aptek", lat: 39.9400, lon: 48.9200, address: "İ. Qutqaşenli küç." }
     ];
 
+    function initDropdowns() {
+        let drugSelects = [document.getElementById("transferDrugSelect"), document.getElementById("pharmacyStockDrug"), document.getElementById("newDrugSelect")];
+        drugSelects.forEach(sel => {
+            if(!sel) return;
+            sel.innerHTML = "";
+            for(let d in productsDB) {
+                sel.innerHTML += `<option value="${d}">${d} (${productsDB[d].price}₼ | Bonus: ${productsDB[d].bonus}₼)</option>`;
+            }
+        });
+    }
+
     function login() {
         let val = document.getElementById("userSelect").value;
         let pass = document.getElementById("loginPassword").value;
@@ -434,6 +444,7 @@
             if(pass !== "123") { alert("Yanlış şifrə! Admin şifrəsi: 123"); return; }
             document.getElementById("loginScreen").classList.add("hidden");
             document.getElementById("adminPanel").classList.remove("hidden");
+            initDropdowns();
             updateAdminTotalStock();
             setTimeout(() => { initAdminMap(); }, 200);
         } else {
@@ -445,6 +456,7 @@
             document.getElementById("agentPanel").classList.remove("hidden");
             document.getElementById("agentBadge").innerText = "👤 " + currentAgent;
             
+            initDropdowns();
             updateAgentStockDisplay();
             setupAgentRegions();
             setTimeout(() => { initUserMap(); }, 200);
@@ -484,9 +496,10 @@
         let arr = agentStocks[currentAgent];
         let container = document.getElementById("stockList");
         container.innerHTML = "";
+        let keys = Object.keys(productsDB);
         if(arr) {
             for(let i=0; i<arr.length; i++) {
-                container.innerHTML += `<div class="stock-item"><span>${drugNames[i]}</span> <strong>${arr[i]} qutu</strong></div>`;
+                container.innerHTML += `<div class="stock-item"><span>${keys[i]}</span> <strong>${arr[i]} qutu</strong></div>`;
             }
         }
     }
@@ -506,16 +519,17 @@
     }
 
     function updateAdminTotalStock() {
-        let totals = new Array(8).fill(0);
+        let keys = Object.keys(productsDB);
+        let totals = new Array(keys.length).fill(0);
         for(let agent in agentStocks) {
-            for(let i=0; i<8; i++) {
+            for(let i=0; i<keys.length; i++) {
                 totals[i] += agentStocks[agent][i];
             }
         }
         let container = document.getElementById("adminTotalStock");
         container.innerHTML = "";
-        for(let i=0; i<8; i++) {
-            container.innerHTML += `<div class="stock-item"><span>${drugNames[i]} (Cəmi)</span> <strong>${totals[i]} qutu</strong></div>`;
+        for(let i=0; i<keys.length; i++) {
+            container.innerHTML += `<div class="stock-item"><span>${keys[i]} (Cəmi)</span> <strong>${totals[i]} qutu</strong></div>`;
         }
     }
 
@@ -524,7 +538,8 @@
         let drugName = document.getElementById("transferDrugSelect").value;
         let qty = parseInt(document.getElementById("transferQty").value) || 0;
 
-        let idx = drugNames.indexOf(drugName);
+        let keys = Object.keys(productsDB);
+        let idx = keys.indexOf(drugName);
         if(idx !== -1 && agentStocks[targetAgent]) {
             agentStocks[targetAgent][idx] += qty;
             alert(`Uğurlu Transfer!\n${targetAgent} işçisinin çantasına ${qty} qutu ${drugName} əlavə olundu.`);
@@ -585,28 +600,42 @@
         if(!pName || qty <= 0) { alert("Məlumatları düzgün daxil edin!"); return; }
 
         let pData = pharmacyDebts[pName];
+        let pInfo = productsDB[drug];
 
         if(opType === 'nagdlashdirma') {
             let currentDebt = pData.stock[drug] || 0;
             if(currentDebt < qty) {
-                alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} var. Bundan artıq nağdlaşdıra bilməzsən!`);
+                alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} var!`);
                 return;
             }
             pData.stock[drug] -= qty;
-            let amount = qty * drugPrices[drug];
-            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, type: "Nağdlaşdırma (Pul Alındı)", drug: drug, qty: qty, amount: `${amount} ₼ (Nağd)` });
-            alert(`Uğurlu Nağdlaşdırma!\n${qty} qutu ${drug} nağdlaşdırıldı (${amount} ₼).`);
+            let totalAmount = qty * pInfo.price;
+            let bonusAmount = qty * pInfo.bonus;
+            let netAmount = totalAmount - bonusAmount;
+
+            visitReports.push({ 
+                date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
+                type: "Nağdlaşdırma (Sərbəst Satış)", drug: drug, qty: qty, 
+                totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount 
+            });
+            alert(`Uğurlu Nağdlaşdırma!\nÜmumi: ${totalAmount}₼ | Bonus: ${bonusAmount}₼ | Net: ${netAmount}₼`);
         } else {
-            let idx = drugNames.indexOf(drug);
+            let keys = Object.keys(productsDB);
+            let idx = keys.indexOf(drug);
             if(agentStocks[currentAgent][idx] < qty) {
                 alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
                 return;
             }
             agentStocks[currentAgent][idx] -= qty;
             pData.stock[drug] = (pData.stock[drug] || 0) + qty;
-            let amount = qty * drugPrices[drug];
-            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, type: "Əlavə Nisyə Mal", drug: drug, qty: qty, amount: `${amount} ₼ (Nisyə)` });
-            alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} əlavə nisyə olaraq verildi.`);
+            let totalAmount = qty * pInfo.price;
+
+            visitReports.push({ 
+                date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
+                type: "Əlavə Nisyə Mal", drug: drug, qty: qty, 
+                totalAmount: totalAmount, bonusAmount: 0, netAmount: totalAmount 
+            });
+            alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi.`);
         }
 
         updateAgentStockDisplay();
@@ -623,6 +652,26 @@
         if(type === "yeni_aptek") document.getElementById("yeniAptekFields").classList.remove("hidden");
     }
 
+    function toggleDoctorAgreement() {
+        let agr = document.getElementById("doctorAgreement").value;
+        let advBox = document.getElementById("doctorAdvanceBox");
+        if(agr === "Razılaşmadı") {
+            advBox.classList.add("hidden");
+        } else {
+            advBox.classList.remove("hidden");
+        }
+    }
+
+    function toggleDoctorAdvanceInput() {
+        let check = document.getElementById("doctorAdvanceCheck").value;
+        let amtBox = document.getElementById("doctorAdvanceAmountBox");
+        if(check === "beli") {
+            amtBox.classList.remove("hidden");
+        } else {
+            amtBox.classList.add("hidden");
+        }
+    }
+
     function addNewPharmacyItem() {
         let drug = document.getElementById("newDrugSelect").value;
         let qty = parseInt(document.getElementById("newDrugQty").value) || 0;
@@ -630,18 +679,22 @@
 
         if(qty <= 0) { alert("Miqdar düzgün deyil!"); return; }
 
-        if(saleType === 'nisye') {
-            let idx = drugNames.indexOf(drug);
-            let currentStock = agentStocks[currentAgent][idx];
-            let existingInCart = activeCart.filter(item => item.drug === drug).reduce((sum, item) => sum + item.qty, 0);
-            if(currentStock < (existingInCart + qty)) {
-                alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
-                return;
-            }
+        let keys = Object.keys(productsDB);
+        let idx = keys.indexOf(drug);
+        let currentStock = agentStocks[currentAgent][idx];
+        let existingInCart = activeCart.filter(item => item.drug === drug).reduce((sum, item) => sum + item.qty, 0);
+        
+        if(currentStock < (existingInCart + qty)) {
+            alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
+            return;
         }
 
-        let amount = qty * drugPrices[drug];
-        activeCart.push({ drug: drug, qty: qty, mode: saleType, amount: amount });
+        let pInfo = productsDB[drug];
+        let totalAmount = qty * pInfo.price;
+        let bonusAmount = (saleType === 'serbest') ? (qty * pInfo.bonus) : 0;
+        let netAmount = totalAmount - bonusAmount;
+
+        activeCart.push({ drug: drug, qty: qty, mode: saleType, totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount });
         renderNewCart();
     }
 
@@ -649,7 +702,7 @@
         let container = document.getElementById("newCartList");
         container.innerHTML = "";
         activeCart.forEach((item, index) => {
-            let label = (item.mode === 'nisye') ? `Nisyə: ${item.qty} qutu ${item.drug} (${item.amount} ₼)` : `Nağd Satış: ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
+            let label = `${item.drug} - ${item.qty} qutu | Ümumi: ${item.totalAmount}₼ (Bonus: ${item.bonusAmount}₼)`;
             container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeNewCart(${index})">Sil</button></div>`;
         });
     }
@@ -665,7 +718,6 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
         let allowedRegions = agentRegions[currentAgent] || [];
-
         sampleLocations.forEach(loc => {
             if(allowedRegions.includes(loc.region)) {
                 let marker = L.marker([loc.lat, loc.lon]).addTo(map);
@@ -683,8 +735,7 @@
 
         sampleLocations.forEach(loc => {
             let marker = L.marker([loc.lat, loc.lon]).addTo(adminMap);
-            let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>Rayon: ${loc.region}<br>${loc.address}`;
-            marker.bindPopup(popupContent);
+            marker.bindPopup(`<b>[${loc.type}] ${loc.name}</b><br>Rayon: ${loc.region}<br>${loc.address}`);
         });
     }
 
@@ -698,8 +749,28 @@
         if(type === "hekim") {
             let doc = document.getElementById("doctorName").value;
             let agr = document.getElementById("doctorAgreement").value;
+            let advCheck = document.getElementById("doctorAdvanceCheck").value;
+            let advAmt = parseFloat(document.getElementById("doctorAdvanceAmount").value) || 0;
+
             if(!doc) { alert("Həkimin adını daxil edin!"); return; }
-            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: doc, type: `Həkim Ziyarəti (${agr})`, drug: "-", qty: "-", amount: "-" });
+
+            let visitLabel = `Həkim Ziyarəti (${agr}`;
+            if(agr === "Razılaşdı" && advCheck === "beli") {
+                visitLabel += ` - İlkin ödəniş: ${advAmt} ₼)`;
+            } else {
+                visitLabel += `)`;
+            }
+
+            visitReports.push({ 
+                date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: doc, 
+                type: visitLabel, drug: "-", qty: "-", totalAmount: advAmt, bonusAmount: 0, netAmount: advAmt 
+            });
+
+            // Formu sıfırla
+            document.getElementById("doctorName").value = "";
+            document.getElementById("doctorPhone").value = "";
+            document.getElementById("doctorAdvanceAmount").value = "0";
+
         } else {
             let objName = document.getElementById("newPharmacyName").value;
             if(!objName) { alert("Aptekin adını daxil edin!"); return; }
@@ -708,20 +779,31 @@
             if(!pharmacyDebts[objName]) pharmacyDebts[objName] = { region: region, lat: 40.4150, lon: 49.8550, address: "Yeni ünvan", stock: {} };
 
             activeCart.forEach(item => {
-                if(item.mode === 'nisye') {
-                    let idx = drugNames.indexOf(item.drug);
-                    if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
-                    pharmacyDebts[objName].stock[item.drug] = (pharmacyDebts[objName].stock[item.drug] || 0) + item.qty;
-                }
-                visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: objName, type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd'})`, drug: item.drug, qty: item.qty, amount: `${item.amount} ₼` });
+                let keys = Object.keys(productsDB);
+                let idx = keys.indexOf(item.drug);
+                if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
+
+                pharmacyDebts[objName].stock[item.drug] = (pharmacyDebts[objName].stock[item.drug] || 0) + item.qty;
+
+                visitReports.push({ 
+                    date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: objName, 
+                    type: `Yeni Aptek (${item.mode === 'serbest' ? 'Sərbəst Satış' : 'Resseptlə'})`, 
+                    drug: item.drug, qty: item.qty, 
+                    totalAmount: item.totalAmount, bonusAmount: item.bonusAmount, netAmount: item.netAmount 
+                });
             });
+
+            // Formu sıfırla
+            document.getElementById("newPharmacyName").value = "";
+            document.getElementById("newManagerName").value = "";
+            document.getElementById("newManagerPhone").value = "";
+            activeCart = [];
+            document.getElementById("newCartList").innerHTML = "";
         }
 
         updateAgentStockDisplay();
         updateAdminTotalStock();
-        alert("Check-in uğurla tamamlandı və hesabata yazıldı!");
-        activeCart = [];
-        document.getElementById("newCartList").innerHTML = "";
+        alert("Check-in uğurla tamamlandı və sıfırlandı!");
     }
 
     function filterRouteReport() {
@@ -760,21 +842,57 @@
     }
 
     function filterStockReport() {
+        let selAgent = document.getElementById("filterStockAgent").value;
+        let selDate = document.getElementById("filterStockDate").value;
         let tbody = document.getElementById("stockReportTableBody");
+        let calcBox = document.getElementById("adminStockCalcBox");
         tbody.innerHTML = "";
 
-        let stockOps = visitReports.filter(r => r.type.includes("Nağdlaşdırma") || r.type.includes("Nisyə") || r.type.includes("Nağd Satış"));
+        let filtered = visitReports.filter(r => {
+            let matchAgent = (selAgent === "all" || r.agent === selAgent);
+            let matchDate = (r.date === selDate);
+            let isStockOp = r.drug !== "-" || r.type.includes("Həkim Ziyarəti");
+            return matchAgent && matchDate && isStockOp;
+        });
 
-        if(stockOps.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#78909c;">Stok və satış əməliyyatı yoxdur.</td></tr>`;
+        if(filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#78909c;">Seçilmiş tarixdə əməliyyat yoxdur.</td></tr>`;
+            calcBox.innerHTML = `Total Miqdar: 0 qutu | Total Ümumi: 0 ₼ | Bonus: 0 ₼ | Net Məbləğ: 0 ₼`;
             return;
         }
 
-        stockOps.forEach(r => {
+        let totalQtySum = 0;
+        let totalAmountSum = 0;
+        let totalBonusSum = 0;
+        let totalNetSum = 0;
+
+        filtered.forEach(r => {
+            let qty = (r.qty !== "-" && !isNaN(r.qty)) ? parseInt(r.qty) : 0;
+            let tot = r.totalAmount || 0;
+            let bon = r.bonusAmount || 0;
+            let net = r.netAmount || 0;
+
+            totalQtySum += qty;
+            totalAmountSum += tot;
+            totalBonusSum += bon;
+            totalNetSum += net;
+
             let tr = document.createElement("tr");
-            tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.obj}</td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${r.amount}</b></td>`;
+            tr.innerHTML = `
+                <td>${r.dateTime || r.date}</td>
+                <td><b>${r.agent}</b></td>
+                <td>${r.obj}</td>
+                <td>${r.type}</td>
+                <td>${r.drug}</td>
+                <td>${r.qty}</td>
+                <td>${tot} ₼</td>
+                <td>${bon} ₼</td>
+                <td><b>${net} ₼</b></td>
+            `;
             tbody.appendChild(tr);
         });
+
+        calcBox.innerHTML = `🧮 KALKULYATOR TOTAL:<br> Miqdar: ${totalQtySum} qutu | Ümumi: ${totalAmountSum} ₼ | Bonus: ${totalBonusSum} ₼ | Net Məbləğ: ${totalNetSum} ₼`;
     }
 </script>
 
