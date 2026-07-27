@@ -274,7 +274,8 @@
                 
                 <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
                 <select id="pharmacyOpType">
-                    <option value="nagdlashdirma">Satılanı Nağdlaşdır (Sərbəst Satış - Bonuslu)</option>
+                    <option value="nagdlashdirma_serbest">Nağdlaşdırma - Aptekin Sərbəst Satışı (Bonuslu)</option>
+                    <option value="nagdlashdirma_resept">Nağdlaşdırma - Həkim Ressepti ilə (Bonussuz)</option>
                     <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
                 </select>
 
@@ -643,20 +644,22 @@
         let pData = pharmacyDebts[pName];
         let pInfo = productsDB[drug];
 
-        if(opType === 'nagdlashdirma') {
+        if(opType === 'nagdlashdirma_serbest' || opType === 'nagdlashdirma_resept') {
             let currentDebt = pData.stock[drug] || 0;
             if(currentDebt < qty) {
                 alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} var!`);
                 return;
             }
             pData.stock[drug] -= qty;
+            
             let totalAmount = qty * pInfo.price;
-            let bonusAmount = qty * pInfo.bonus;
+            let bonusAmount = (opType === 'nagdlashdirma_serbest') ? (qty * pInfo.bonus) : 0;
             let netAmount = totalAmount - bonusAmount;
+            let opLabel = (opType === 'nagdlashdirma_serbest') ? "Nağdlaşdırma (Sərbəst Satış - Bonuslu)" : "Nağdlaşdırma (Resseptlə - Bonussuz)";
 
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
-                type: "Nağdlaşdırma (Sərbəst Satış)", drug: drug, qty: qty, 
+                type: opLabel, drug: drug, qty: qty, 
                 totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount 
             });
             alert(`Uğurlu Nağdlaşdırma!\nÜmumi: ${totalAmount}₼ | Bonus: ${bonusAmount}₼ | Net: ${netAmount}₼`);
