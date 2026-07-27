@@ -46,8 +46,10 @@
 
         #map, #adminMap { width: 100%; height: 260px; border-radius: 8px; margin-top: 8px; border: 1px solid #cfd8dc; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; }
-        th, td { border: 1px solid #e0e0e0; padding: 6px 4px; text-align: left; }
+        /* Telefon üçün adaptiv cədvəl konfiqurasiyası */
+        .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #e0e0e0; border-radius: 8px; }
+        table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 10px; background: #fff; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; white-space: nowrap; }
         th { background: #e8f5e9; color: var(--primary); font-weight: 700; }
 
         .login-banner { font-size: 12px; color: #37474f; line-height: 1.4; margin-bottom: 12px; text-align: center; background: #e8f5e9; padding: 10px; border-radius: 8px; border: 1px solid #c8e6c9; }
@@ -57,9 +59,12 @@
         .stat-label { font-size: 10px; color: #558b2f; font-weight: 700; text-transform: uppercase; }
 
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 6px; font-size: 12px; }
-        .calc-total-box { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; color: var(--primary); text-align: right; font-size: 13px; }
+        .calc-total-box { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; color: var(--primary); text-align: right; font-size: 12px; line-height: 1.5; }
+        
         .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box; }
         .modal-content { background: #fff; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        
+        .nav-choice-btn { margin-top: 8px; padding: 10px; font-size: 13px; text-align: center; border-radius: 8px; font-weight: bold; text-decoration: none; display: block; color: white; }
     </style>
 </head>
 <body>
@@ -74,7 +79,7 @@
     <div id="loginScreen">
         <div class="card">
             <h3>🔐 Sistemə Giriş</h3>
-            <p class="login-banner">🚀 Sahə satışlarını və işçilərin hərəkətlərini tam nəzarətdə saxlayın! Bu sistemlə iş yükünüz yüngülləşəcək, satış performansınız isə sürətlə artacaq.</p>
+            <p class="login-banner">🚀 Sahə satışlarını və işçilərin hərəkətlərini tam nəzarətdə saxlayın!</p>
             
             <div class="stats-grid">
                 <div class="stat-box">
@@ -90,8 +95,8 @@
             <label>İstifadəçi / Rol Seçimi:</label>
             <select id="userSelect" style="padding: 10px; font-weight: 600;">
                 <option value="admin">👑 İsmayıl Mirzəzadə (Admin)</option>
-                <option value="İşçi 1">👤 İşçi 1 (Şirvan / Salyan)</option>
-                <option value="İşçi 2">👤 İşçi 2 (Gəncə / Tovuz)</option>
+                <option value="Quluzadə Orxan">👤 Quluzadə Orxan (Yasamal, Binəqədi, Nəsimi...)</option>
+                <option value="Xamıyev Hüseyn">👤 Xamıyev Hüseyn (Xətai, Nizami, Nərimanov...)</option>
                 <option value="İşçi 3">👤 İşçi 3 (Şəki / Qəbələ)</option>
                 <option value="İşçi 4">👤 İşçi 4 (Lənkəran / Astara)</option>
                 <option value="İşçi 5">👤 İşçi 5 (Quba / Xaçmaz)</option>
@@ -100,7 +105,7 @@
             </select>
 
             <label>Şifrə:</label>
-            <input type="password" id="loginPassword" placeholder="Admin: 123, İşçi 1: 1..." style="padding: 10px;">
+            <input type="password" id="loginPassword" placeholder="Admin: 123, Orxan: 1, Hüseyn: 2..." style="padding: 10px;">
 
             <button onclick="login()">Sistemə Daxil Ol</button>
         </div>
@@ -110,26 +115,24 @@
     <div id="adminPanel" class="hidden">
         <div style="display: flex; gap: 6px; margin-bottom: 10px;">
             <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #0277bd;" onclick="showRouteReportPage()">🛣️ Rut Hesabatı</button>
-            <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #2e7d32;" onclick="showStockReportPage()">📦 Stok & Satış Hesabatı</button>
+            <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #2e7d32;" onclick="showStockReportPage()">📦 Stok Hesabatı</button>
         </div>
         
         <div class="card" style="background: #e8f5e9; border: 1px solid var(--primary);">
             <h3>🔄 İşçiyə Stok Transferi (Mal Verilməsi)</h3>
             <label>Hansı İşçiyə Verilir?</label>
             <select id="transferAgentSelect">
-                <option value="İşçi 1">İşçi 1</option>
-                <option value="İşçi 2">İşçi 2</option>
+                <option value="Quluzadə Orxan">Quluzadə Orxan</option>
+                <option value="Xamıyev Hüseyn">Xamıyev Hüseyn</option>
                 <option value="İşçi 3">İşçi 3</option>
                 <option value="İşçi 4">İşçi 4</option>
                 <option value="İşçi 5">İşçi 5</option>
                 <option value="İşçi 6">İşçi 6</option>
-                <option value="İşçi 7">İşçi 7 (Bakı Mərkəz)</option>
+                <option value="İşçi 7">İşçi 7</option>
             </select>
 
             <label>Məhsul:</label>
-            <select id="transferDrugSelect">
-                <!-- Dinamik doldurulacaq -->
-            </select>
+            <select id="transferDrugSelect"></select>
 
             <label>Miqdar (Qutu):</label>
             <input type="number" id="transferQty" value="10" min="1">
@@ -162,13 +165,13 @@
             <label>İşçi Seçin:</label>
             <select id="filterRouteAgent" onchange="filterRouteReport()">
                 <option value="all">Bütün İşçilər</option>
-                <option value="İşçi 1">İşçi 1</option>
-                <option value="İşçi 2">İşçi 2</option>
+                <option value="Quluzadə Orxan">Quluzadə Orxan</option>
+                <option value="Xamıyev Hüseyn">Xamıyev Hüseyn</option>
                 <option value="İşçi 3">İşçi 3</option>
                 <option value="İşçi 4">İşçi 4</option>
                 <option value="İşçi 5">İşçi 5</option>
                 <option value="İşçi 6">İşçi 6</option>
-                <option value="İşçi 7">İşçi 7 (Bakı Mərkəz)</option>
+                <option value="İşçi 7">İşçi 7</option>
             </select>
             
             <label>Tarix:</label>
@@ -176,18 +179,21 @@
 
             <div id="routeSummaryBox" class="stats-grid" style="margin-top: 10px;"></div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tarix/Saat</th>
-                        <th>İşçi</th>
-                        <th>Rayon</th>
-                        <th>Obyekt</th>
-                        <th>Ziyarət Növü</th>
-                    </tr>
-                </thead>
-                <tbody id="routeTableBody"></tbody>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tarix/Saat</th>
+                            <th>İşçi</th>
+                            <th>Rayon</th>
+                            <th>Obyekt</th>
+                            <th>Ziyarət Növü</th>
+                            <th>Həkim Ödənişi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="routeTableBody"></tbody>
+                </table>
+            </div>
         </div>
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
     </div>
@@ -204,34 +210,36 @@
             <label>İşçi Seçin:</label>
             <select id="filterStockAgent" onchange="filterStockReport()">
                 <option value="all">Bütün İşçilər</option>
-                <option value="İşçi 1">İşçi 1</option>
-                <option value="İşçi 2">İşçi 2</option>
+                <option value="Quluzadə Orxan">Quluzadə Orxan</option>
+                <option value="Xamıyev Hüseyn">Xamıyev Hüseyn</option>
                 <option value="İşçi 3">İşçi 3</option>
                 <option value="İşçi 4">İşçi 4</option>
                 <option value="İşçi 5">İşçi 5</option>
                 <option value="İşçi 6">İşçi 6</option>
-                <option value="İşçi 7">İşçi 7 (Bakı Mərkəz)</option>
+                <option value="İşçi 7">İşçi 7</option>
             </select>
 
             <label>Tarix:</label>
             <input type="date" id="filterStockDate" value="2026-07-28" onchange="filterStockReport()">
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tarix</th>
-                        <th>İşçi</th>
-                        <th>Aptek</th>
-                        <th>Əməliyyat</th>
-                        <th>Məhsul</th>
-                        <th>Miq</th>
-                        <th>Ümumi</th>
-                        <th>Bonus</th>
-                        <th>Net Məbləğ</th>
-                    </tr>
-                </thead>
-                <tbody id="stockReportTableBody"></tbody>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tarix</th>
+                            <th>İşçi</th>
+                            <th>Aptek</th>
+                            <th>Əməliyyat</th>
+                            <th>Məhsul</th>
+                            <th>Miq</th>
+                            <th>Ümumi</th>
+                            <th>Bonus</th>
+                            <th>Net Məbləğ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockReportTableBody"></tbody>
+                </table>
+            </div>
             <div id="adminStockCalcBox" class="calc-total-box"></div>
         </div>
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
@@ -239,9 +247,12 @@
 
     <!-- İŞÇİ PANELİ -->
     <div id="agentPanel" class="hidden">
-        <div class="badge" id="agentBadge">👤 İşçi Paneli</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="badge" id="agentBadge" style="margin:0;">👤 İşçi Paneli</div>
+            <button style="width: auto; margin: 0; padding: 6px 10px; font-size: 11px; background: #0277bd;" onclick="openAgentReportModal()">📊 Mənim Günlük Hesabatım</button>
+        </div>
         
-        <div class="card" style="background: #e8f5e9; border-color: #c8e6c9;">
+        <div class="card" style="background: #e8f5e9; border-color: #c8e6c9; margin-top: 10px;">
             <label style="color: var(--primary);">📅 İş Gününü Seçin:</label>
             <input type="date" id="workDate" value="2026-07-28">
         </div>
@@ -264,24 +275,22 @@
                 
                 <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
                 <select id="pharmacyOpType">
-                    <option value="nagdlashdirma">Satılanı Nağdlaşdır (Pulunu al)</option>
+                    <option value="nagdlashdirma">Satılanı Nağdlaşdır (Sərbəst Satış - Bonuslu)</option>
                     <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
                 </select>
 
                 <label>Məhsul:</label>
-                <select id="pharmacyStockDrug">
-                    <!-- Dinamik doldurulacaq -->
-                </select>
+                <select id="pharmacyStockDrug"></select>
 
                 <label>Miqdar (Qutu):</label>
                 <input type="number" id="pharmacyStockQty" value="1" min="1">
 
                 <button type="button" style="background: #0277bd;" onclick="executePharmacyStockOp()">Təsdiq Et & Qeydə Al</button>
-                <a id="pharmacyWazeBtn" href="#" target="_blank" class="nav-btn" style="display:block; text-align:center; padding:10px; color:white; text-decoration:none; border-radius:6px; font-size:14px; font-weight:bold; margin-top:8px;">🚗 Waze ilə Yol Tərifi Al</a>
+                <button type="button" style="background: #00838f; margin-top:8px;" onclick="openPharmacyNavModal()">🚗 Yol Tərifi Al (Naviqasiya)</button>
             </div>
         </div>
 
-        <!-- 2. ÜMUMİ İŞÇİ STOKU - ÇANTADAKI (Ortada) -->
+        <!-- 2. ÜMUMİ İŞÇİ STOKU - ÇANTADAKI -->
         <div class="card">
             <h3>🎒 Çantamdakı Dərman Stoku</h3>
             <div id="stockList"></div>
@@ -325,7 +334,7 @@
                 </div>
             </div>
 
-            <!-- Yeni Aptek -->
+            <!-- Yeni Aptek (Əvvəlki sadə məntiqə qaytarıldı: Nisyə / Nağd) -->
             <div id="yeniAptekFields" class="visit-section hidden">
                 <label>Aptekin Adı:</label>
                 <input type="text" id="newPharmacyName" placeholder="Zəfər Aptek">
@@ -334,17 +343,15 @@
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
                 
-                <label>Satış Növü (Bonus Hesablanması üçün):</label>
+                <label>Satış Növü:</label>
                 <select id="newSaleType">
-                    <option value="serbest">Aptekin Sərbəst Satışı (Bonuslu)</option>
-                    <option value="resept">Həkim Ressepti ilə (Bonussuz)</option>
+                    <option value="nisye">Nisyə Ver</option>
+                    <option value="nagd">Nağd Sat</option>
                 </select>
 
                 <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
                     <label>Məhsul:</label>
-                    <select id="newDrugSelect">
-                        <!-- Dinamik doldurulacaq -->
-                    </select>
+                    <select id="newDrugSelect"></select>
                     <label>Miqdar (Qutu):</label>
                     <input type="number" id="newDrugQty" value="1" min="1">
                     <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addNewPharmacyItem()">➕ Səbətə Əlavə Et</button>
@@ -363,6 +370,32 @@
 
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
     </div>
+
+    <!-- İŞÇİ HESABAT MODALI -->
+    <div id="agentReportModal" class="fullscreen-modal hidden">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0; color: var(--primary);">📊 Mənim Günlük Hesabatım</h3>
+                <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeAgentReportModal()">Bağla</button>
+            </div>
+            
+            <div id="agentReportContent"></div>
+        </div>
+    </div>
+
+    <!-- NAVİQASİYA SEÇİM MODALI (Google Maps vs Waze) -->
+    <div id="navChoiceModal" class="fullscreen-modal hidden">
+        <div class="modal-content" style="text-align: center; max-width: 320px;">
+            <h3 style="margin-top:0;">🗺️ Naviqasiya Seçin</h3>
+            <p style="font-size:12px; color:#555;">Sürücülük üçün xəritə tətbiqini seçin:</p>
+            
+            <a id="gmapsLinkBtn" href="#" target="_blank" class="nav-choice-btn" style="background: #4285F4;">🗺️ Google Maps ilə Aç</a>
+            <a id="wazeLinkBtn" href="#" target="_blank" class="nav-choice-btn" style="background: #33CCFF;">🚗 Waze ilə Aç</a>
+            
+            <button style="background: #78909c; margin-top: 14px;" onclick="closeNavChoiceModal()">Bağla</button>
+        </div>
+    </div>
+
 </div>
 
 <!-- Leaflet JS -->
@@ -370,10 +403,10 @@
 <script>
     let map = null;
     let adminMap = null;
-    let currentAgent = "İşçi 1";
+    let currentAgent = "Quluzadə Orxan";
     let activeCart = [];
+    let selectedNavCoords = { lat: 0, lon: 0 };
 
-    // Yeni 9 aktiv məhsul, qiymətləri və bonusları
     let productsDB = {
         "Golden Biotin n60": { price: 28, bonus: 5 },
         "Golden Bromelain n30": { price: 23, bonus: 4 },
@@ -386,9 +419,10 @@
         "Golden Glutathione n30": { price: 23, bonus: 4 }
     };
 
+    // Yenilənmiş işçilər və lokanik Bakı rayonları
     let agentRegions = {
-        "İşçi 1": ["Şirvan", "Salyan"],
-        "İşçi 2": ["Gəncə", "Tovuz"],
+        "Quluzadə Orxan": ["Yasamal", "Binəqədi", "Nəsimi", "Xəzər", "Suraxanı"],
+        "Xamıyev Hüseyn": ["Xətai", "Nizami", "Nərimanov", "Səbail"],
         "İşçi 3": ["Şəki", "Qəbələ"],
         "İşçi 4": ["Lənkəran", "Astara"],
         "İşçi 5": ["Quba", "Xaçmaz"],
@@ -397,8 +431,8 @@
     };
 
     let agentStocks = {
-        "İşçi 1": [10, 15, 8, 10, 12, 10, 14, 9, 11],
-        "İşçi 2": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+        "Quluzadə Orxan": [15, 20, 10, 15, 12, 10, 14, 10, 12],
+        "Xamıyev Hüseyn": [15, 20, 10, 15, 12, 10, 14, 10, 12],
         "İşçi 3": [10, 15, 8, 10, 12, 10, 14, 9, 11],
         "İşçi 4": [10, 15, 8, 10, 12, 10, 14, 9, 11],
         "İşçi 5": [10, 15, 8, 10, 12, 10, 14, 9, 11],
@@ -407,21 +441,22 @@
     };
 
     let pharmacyDebts = {
-        "Zeytun Aptek #4": { region: "Bakı Mərkəz", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12", stock: { "Golden Biotin n60": 5, "Golden Iron n60": 3 } },
-        "Ailə Apteki": { region: "Bakı Mərkəz", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45", stock: { "Golden Biotin n60": 4 } },
+        "Zeytun Aptek #4": { region: "Nəsimi", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12", stock: { "Golden Biotin n60": 5, "Golden Iron n60": 3 } },
+        "Ailə Apteki": { region: "Yasamal", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45", stock: { "Golden Biotin n60": 4 } },
+        "Nizami Aptek": { region: "Nizami", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8", stock: { "Golden Curcuma n30": 2 } },
         "Şəfa Aptek #9": { region: "Şirvan", lat: 39.9333, lon: 48.9167, address: "Mərkəzi küç.", stock: { "Golden Immunix n30": 6 } }
     };
 
     let visitReports = [
-        { date: "2026-07-28", dateTime: "2026-07-28 10:00:00", agent: "İşçi 7", region: "Bakı Mərkəz", obj: "Zeytun Aptek #4", type: "Yeni Aptek (Sərbəst Satış)", drug: "Golden Biotin n60", qty: 5, totalAmount: 140, bonusAmount: 25, netAmount: 115 },
-        { date: "2026-07-28", dateTime: "2026-07-28 11:30:00", agent: "İşçi 1", region: "Şirvan", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti (Razılaşdı - İlkin ödəniş: 50 ₼)", drug: "-", qty: "-", totalAmount: 50, bonusAmount: 0, netAmount: 50 }
+        { date: "2026-07-28", dateTime: "2026-07-28 10:00:00", agent: "Quluzadə Orxan", region: "Nəsimi", obj: "Zeytun Aptek #4", type: "Nağdlaşdırma (Sərbəst Satış)", drug: "Golden Biotin n60", qty: 5, totalAmount: 140, bonusAmount: 25, netAmount: 115 },
+        { date: "2026-07-28", dateTime: "2026-07-28 11:30:00", agent: "Quluzadə Orxan", region: "Yasamal", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti (Razılaşdı - İlkin ödəniş: 50 ₼)", drug: "-", qty: "-", totalAmount: 50, bonusAmount: 0, netAmount: 50 }
     ];
 
     let sampleLocations = [
-        { name: "Zeytun Aptek #4", region: "Bakı Mərkəz", type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12" },
-        { name: "Ailə Apteki", region: "Bakı Mərkəz", type: "Aptek", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45" },
-        { name: "Nizami Aptek", region: "Bakı Mərkəz", type: "Aptek", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8" },
-        { name: "Dr. Elçin Məmmədov", region: "Şirvan", type: "Həkim", lat: 39.9333, lon: 48.9167, address: "Mərkəzi Klinika" },
+        { name: "Zeytun Aptek #4", region: "Nəsimi", type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12" },
+        { name: "Ailə Apteki", region: "Yasamal", type: "Aptek", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45" },
+        { name: "Nizami Aptek", region: "Nizami", type: "Aptek", lat: 40.4200, lon: 49.8400, address: "H. Əliyev pr. 8" },
+        { name: "Dr. Elçin Məmmədov", region: "Yasamal", type: "Həkim", lat: 40.3950, lon: 49.8200, address: "Mərkəzi Klinika" },
         { name: "Şəfa Aptek #9", region: "Şirvan", type: "Aptek", lat: 39.9400, lon: 48.9200, address: "İ. Qutqaşenli küç." }
     ];
 
@@ -448,7 +483,8 @@
             updateAdminTotalStock();
             setTimeout(() => { initAdminMap(); }, 200);
         } else {
-            let expectedPass = val.replace("İşçi ", "");
+            let passMap = { "Quluzadə Orxan": "1", "Xamıyev Hüseyn": "2" };
+            let expectedPass = passMap[val] || val.replace("İşçi ", "");
             if(pass !== expectedPass) { alert(`Yanlış şifrə! Bu işçi üçün şifrə: ${expectedPass}`); return; }
             
             currentAgent = val;
@@ -566,11 +602,11 @@
         let pName = document.getElementById("stockPharmacySelect").value;
         let detailView = document.getElementById("pharmacyStockDetailView");
         let contentDiv = document.getElementById("pharmacyStockListContent");
-        let wazeBtn = document.getElementById("pharmacyWazeBtn");
 
         if(!pName) { detailView.classList.add("hidden"); return; }
 
         let pData = pharmacyDebts[pName];
+        selectedNavCoords = { lat: pData.lat, lon: pData.lon };
         let text = `<b>📦 ${pName} - Mövcud Nisyə Mallar:</b><br>`;
         let hasStock = false;
         
@@ -582,11 +618,18 @@
         }
 
         if(!hasStock) { text += `<i>Bu aptekdə hazırda nisyə mal yoxdur.</i>`; }
-
         contentDiv.innerHTML = text;
-        wazeBtn.setAttribute("href", `https://www.waze.com/ul?ll=${pData.lat},${pData.lon}&navigate=yes`);
         detailView.classList.remove("hidden");
     }
+
+    function openPharmacyNavModal() {
+        if(!selectedNavCoords.lat) return;
+        document.getElementById("gmapsLinkBtn").setAttribute("href", `https://www.google.com/maps/search/?api=1&query=${selectedNavCoords.lat},${selectedNavCoords.lon}`);
+        document.getElementById("wazeLinkBtn").setAttribute("href", `https://www.waze.com/ul?ll=${selectedNavCoords.lat},${selectedNavCoords.lon}&navigate=yes`);
+        document.getElementById("navChoiceModal").classList.remove("hidden");
+    }
+
+    function closeNavChoiceModal() { document.getElementById("navChoiceModal").classList.add("hidden"); }
 
     function executePharmacyStockOp() {
         let pName = document.getElementById("stockPharmacySelect").value;
@@ -655,21 +698,15 @@
     function toggleDoctorAgreement() {
         let agr = document.getElementById("doctorAgreement").value;
         let advBox = document.getElementById("doctorAdvanceBox");
-        if(agr === "Razılaşmadı") {
-            advBox.classList.add("hidden");
-        } else {
-            advBox.classList.remove("hidden");
-        }
+        if(agr === "Razılaşmadı") advBox.classList.add("hidden");
+        else advBox.classList.remove("hidden");
     }
 
     function toggleDoctorAdvanceInput() {
         let check = document.getElementById("doctorAdvanceCheck").value;
         let amtBox = document.getElementById("doctorAdvanceAmountBox");
-        if(check === "beli") {
-            amtBox.classList.remove("hidden");
-        } else {
-            amtBox.classList.add("hidden");
-        }
+        if(check === "beli") amtBox.classList.remove("hidden");
+        else amtBox.classList.add("hidden");
     }
 
     function addNewPharmacyItem() {
@@ -691,10 +728,8 @@
 
         let pInfo = productsDB[drug];
         let totalAmount = qty * pInfo.price;
-        let bonusAmount = (saleType === 'serbest') ? (qty * pInfo.bonus) : 0;
-        let netAmount = totalAmount - bonusAmount;
 
-        activeCart.push({ drug: drug, qty: qty, mode: saleType, totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount });
+        activeCart.push({ drug: drug, qty: qty, mode: saleType, totalAmount: totalAmount, bonusAmount: 0, netAmount: totalAmount });
         renderNewCart();
     }
 
@@ -702,7 +737,7 @@
         let container = document.getElementById("newCartList");
         container.innerHTML = "";
         activeCart.forEach((item, index) => {
-            let label = `${item.drug} - ${item.qty} qutu | Ümumi: ${item.totalAmount}₼ (Bonus: ${item.bonusAmount}₼)`;
+            let label = `${item.drug} - ${item.qty} qutu | Ümumi: ${item.totalAmount}₼ (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd'})`;
             container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeNewCart(${index})">Sil</button></div>`;
         });
     }
@@ -722,10 +757,15 @@
             if(allowedRegions.includes(loc.region)) {
                 let marker = L.marker([loc.lat, loc.lon]).addTo(map);
                 let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>${loc.address}<br><br>` +
-                    `<a href="https://www.waze.com/ul?ll=${loc.lat},${loc.lon}&navigate=yes" target="_blank" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>`;
+                    `<a href="#" onclick="openNavDirectModal(${loc.lat},${loc.lon}); return false;" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Yol Tərifi Al</a>`;
                 marker.bindPopup(popupContent);
             }
         });
+    }
+
+    function openNavDirectModal(lat, lon) {
+        selectedNavCoords = { lat: lat, lon: lon };
+        openPharmacyNavModal();
     }
 
     function initAdminMap() {
@@ -754,19 +794,16 @@
 
             if(!doc) { alert("Həkimin adını daxil edin!"); return; }
 
-            let visitLabel = `Həkim Ziyarəti (${agr}`;
-            if(agr === "Razılaşdı" && advCheck === "beli") {
-                visitLabel += ` - İlkin ödəniş: ${advAmt} ₼)`;
-            } else {
-                visitLabel += `)`;
-            }
+            let visitLabel = `Həkim Ziyarəti (${agr})`;
 
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: doc, 
-                type: visitLabel, drug: "-", qty: "-", totalAmount: advAmt, bonusAmount: 0, netAmount: advAmt 
+                type: visitLabel, drug: "-", qty: "-", totalAmount: advAmt, bonusAmount: 0, netAmount: advAmt, isDoctorAdvance: (agr === "Razılaşdı" && advCheck === "beli"), advAmt: advAmt 
             });
 
-            // Formu sıfırla
+            // Avtomatik xəritəyə əlavə et
+            sampleLocations.push({ name: doc, region: region, type: "Həkim", lat: 40.4093, lon: 49.8671, address: "Təzə qeydiyyat" });
+
             document.getElementById("doctorName").value = "";
             document.getElementById("doctorPhone").value = "";
             document.getElementById("doctorAdvanceAmount").value = "0";
@@ -776,24 +813,28 @@
             if(!objName) { alert("Aptekin adını daxil edin!"); return; }
             if(activeCart.length === 0) { alert("Səbətə məhsul əlavə edin!"); return; }
 
-            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = { region: region, lat: 40.4150, lon: 49.8550, address: "Yeni ünvan", stock: {} };
+            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = { region: region, lat: 40.4093, lon: 49.8671, address: "Yeni ünvan", stock: {} };
 
             activeCart.forEach(item => {
                 let keys = Object.keys(productsDB);
                 let idx = keys.indexOf(item.drug);
                 if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
 
-                pharmacyDebts[objName].stock[item.drug] = (pharmacyDebts[objName].stock[item.drug] || 0) + item.qty;
+                if(item.mode === 'nisye') {
+                    pharmacyDebts[objName].stock[item.drug] = (pharmacyDebts[objName].stock[item.drug] || 0) + item.qty;
+                }
 
                 visitReports.push({ 
                     date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: objName, 
-                    type: `Yeni Aptek (${item.mode === 'serbest' ? 'Sərbəst Satış' : 'Resseptlə'})`, 
+                    type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd Satış'})`, 
                     drug: item.drug, qty: item.qty, 
-                    totalAmount: item.totalAmount, bonusAmount: item.bonusAmount, netAmount: item.netAmount 
+                    totalAmount: item.totalAmount, bonusAmount: 0, netAmount: item.totalAmount 
                 });
             });
 
-            // Formu sıfırla
+            // Avtomatik xəritəyə düşsün
+            sampleLocations.push({ name: objName, region: region, type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Yeni qeyd" });
+
             document.getElementById("newPharmacyName").value = "";
             document.getElementById("newManagerName").value = "";
             document.getElementById("newManagerPhone").value = "";
@@ -803,7 +844,8 @@
 
         updateAgentStockDisplay();
         updateAdminTotalStock();
-        alert("Check-in uğurla tamamlandı və sıfırlandı!");
+        initUserMap();
+        alert("Check-in uğurla tamamlandı və xəritəyə əlavə olundu!");
     }
 
     function filterRouteReport() {
@@ -830,13 +872,14 @@
         `;
 
         if(filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#78909c;">Seçilmiş tarixdə məlumat yoxdur.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#78909c;">Seçilmiş tarixdə məlumat yoxdur.</td></tr>`;
             return;
         }
 
         filtered.forEach(r => {
+            let docPayText = (r.isDoctorAdvance) ? `<b>${r.advAmt} ₼ (İlkin ödəniş)</b>` : "-";
             let tr = document.createElement("tr");
-            tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.region}</td><td>${r.obj}</td><td>${r.type}</td>`;
+            tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.region}</td><td>${r.obj}</td><td>${r.type}</td><td>${docPayText}</td>`;
             tbody.appendChild(tr);
         });
     }
@@ -848,15 +891,16 @@
         let calcBox = document.getElementById("adminStockCalcBox");
         tbody.innerHTML = "";
 
+        // Yalnız aptek stok və satış əməliyyatları (Həkim pulu bura DÜŞMÜR)
         let filtered = visitReports.filter(r => {
             let matchAgent = (selAgent === "all" || r.agent === selAgent);
             let matchDate = (r.date === selDate);
-            let isStockOp = r.drug !== "-" || r.type.includes("Həkim Ziyarəti");
+            let isStockOp = r.drug !== "-"; 
             return matchAgent && matchDate && isStockOp;
         });
 
         if(filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#78909c;">Seçilmiş tarixdə əməliyyat yoxdur.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#78909c;">Seçilmiş tarixdə aptek satış/stok əməliyyatı yoxdur.</td></tr>`;
             calcBox.innerHTML = `Total Miqdar: 0 qutu | Total Ümumi: 0 ₼ | Bonus: 0 ₼ | Net Məbləğ: 0 ₼`;
             return;
         }
@@ -892,7 +936,39 @@
             tbody.appendChild(tr);
         });
 
-        calcBox.innerHTML = `🧮 KALKULYATOR TOTAL:<br> Miqdar: ${totalQtySum} qutu | Ümumi: ${totalAmountSum} ₼ | Bonus: ${totalBonusSum} ₼ | Net Məbləğ: ${totalNetSum} ₼`;
+        calcBox.innerHTML = `🧮 KALKULYATOR TOTAL (Yalnız Aptek):<br> Miqdar: ${totalQtySum} qutu | Ümumi Mədaxil: ${totalAmountSum} ₼ | Aptek Bonusu: ${totalBonusSum} ₼ | Saf Net Qazanc: ${totalNetSum} ₼`;
+    }
+
+    // İşçinin Öz Günlük Hesabatı
+    function openAgentReportModal() {
+        let selectedDate = document.getElementById("workDate").value;
+        let modal = document.getElementById("agentReportModal");
+        let content = document.getElementById("agentReportContent");
+
+        let filtered = visitReports.filter(r => r.agent === currentAgent && r.date === selectedDate);
+
+        if(filtered.length === 0) {
+            content.innerHTML = `<p style="text-align:center; color:#78909c;">Sizin ${selectedDate} tarixində hələ heç bir əməliyyatınız yoxdur.</p>`;
+        } else {
+            let html = `<p style="font-size:12px; font-weight:bold; color:var(--primary);">📅 Tarix: ${selectedDate}</p>`;
+            html += `<div class="table-container"><table><thead><tr><th>Tarix/Saat</th><th>Obyekt</th><th>Əməliyyat</th><th>Məhsul</th><th>Miq</th><th>Məbləğ</th></tr></thead><tbody>`;
+            
+            let myNetSum = 0;
+            filtered.forEach(r => {
+                let net = r.netAmount || 0;
+                myNetSum += net;
+                html += `<tr><td>${r.dateTime}</td><td><b>${r.obj}</b></td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${net} ₼</b></td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            html += `<div class="calc-total-box" style="margin-top:10px;">Günlük Yığılan Net Məbləğ: <b>${myNetSum} ₼</b></div>`;
+            content.innerHTML = html;
+        }
+
+        modal.classList.remove("hidden");
+    }
+
+    function closeAgentReportModal() {
+        document.getElementById("agentReportModal").classList.add("hidden");
     }
 </script>
 
