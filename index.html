@@ -51,7 +51,7 @@
         th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; white-space: nowrap; }
         th { background: #e8f5e9; color: var(--primary); font-weight: 700; }
 
-        .login-banner { font-size: 12px; color: #37474f; line-height: 1.4; margin-bottom: 12px; text-align: center; background: #e8f5e9; padding: 10px; border-radius: 8px; border: 1px solid #c8e6c9; }
+        .login-banner { font-size: 12px; color: #37474f; line-height: 1.5; margin-bottom: 12px; text-align: center; background: #e8f5e9; padding: 10px; border-radius: 8px; border: 1px solid #c8e6c9; }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .stat-box { background: #e8f5e9; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #c8e6c9; }
         .stat-num { font-size: 18px; font-weight: 800; color: var(--primary); }
@@ -78,7 +78,10 @@
     <div id="loginScreen">
         <div class="card">
             <h3>🔐 Sistemə Giriş</h3>
-            <p class="login-banner">🚀 Sahə satışlarını və işçilərin hərəkətlərini tam nəzarətdə saxlayın!</p>
+            <p class="login-banner">
+                🎯 <b>Hədəfə Doğru, Addım-addım!</b><br>
+                Hər bir uğurlu ziyarət və dəqiq qeydiyyat sizin peşəkar inkişafınızın və ümumi uğurumuzun təməlidir. Məsuliyyətlə çalışaq, sahəni tam nəzarətdə saxlayaq! 🚀
+            </p>
             
             <div class="stats-grid">
                 <div class="stat-box">
@@ -190,7 +193,7 @@
                             <th>İşçi</th>
                             <th>Rayon</th>
                             <th>Obyekt</th>
-                            <th>Ziyarət Növü</th>
+                            <th>Ziyarət Növü & Detallar</th>
                             <th>Həkimə Verilən (Bonusdan)</th>
                         </tr>
                     </thead>
@@ -444,7 +447,6 @@
         "İşçi 7": [15, 20, 10, 15, 12, 10, 14, 10, 12]
     };
 
-    // İşçilərin bonus (nümayəndə) büdcələri
     let agentBudgets = {
         "Quluzadə Orxan": 200,
         "Xamıyev Hüseyn": 150,
@@ -455,7 +457,6 @@
         "İşçi 7": 100
     };
 
-    // Bütün nümunələr sıfırlandı, təmiz başlanğıc
     let pharmacyDebts = {};
     let visitReports = [];
     let sampleLocations = [];
@@ -623,7 +624,7 @@
 
         let pData = pharmacyDebts[pName];
         selectedNavCoords = { lat: pData.lat, lon: pData.lon };
-        let text = `<b>📦 ${pName} - Mövcud Nisyə Mallar:</b><br>`;
+        let text = `<b>📦 ${pName} - Mövcud Nisyə Mallar (Gözləmədə):</b><br>`;
         let hasStock = false;
         
         for(let d in pData.stock) {
@@ -664,7 +665,7 @@
         if(opType === 'nagdlashdirma_serbest' || opType === 'nagdlashdirma_resept') {
             let currentDebt = pData.stock[drug] || 0;
             if(currentDebt < qty) {
-                alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} var!`);
+                alert(`Bu aptekdə nisyə gözləmədə cəmi ${currentDebt} qutu ${drug} var!`);
                 return;
             }
             pData.stock[drug] -= qty;
@@ -677,9 +678,9 @@
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
                 type: opLabel, drug: drug, qty: qty, 
-                totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount, doctorPay: 0 
+                totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount, doctorPay: 0, isCashSale: true 
             });
-            alert(`Uğurlu Nağdlaşdırma!\nÜmumi: ${totalAmount}₼ | Bonus: ${bonusAmount}₼ | Net: ${netAmount}₼`);
+            alert(`Uğurlu Nağdlaşdırma (Qazanca yazıldı)!\nÜmumi: ${totalAmount}₼ | Bonus: ${bonusAmount}₼ | Net Qazanc: ${netAmount}₼`);
         } else {
             let keys = Object.keys(productsDB);
             let idx = keys.indexOf(drug);
@@ -693,10 +694,10 @@
 
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
-                type: "Əlavə Nisyə Mal", drug: drug, qty: qty, 
-                totalAmount: totalAmount, bonusAmount: 0, netAmount: totalAmount, doctorPay: 0 
+                type: "Əlavə Nisyə Mal (Gözləmədə)", drug: drug, qty: qty, 
+                totalAmount: totalAmount, bonusAmount: 0, netAmount: 0, doctorPay: 0, isCashSale: false 
             });
-            alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi.`);
+            alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi (hələ qazanc sayılmır).`);
         }
 
         updateAgentStockDisplay();
@@ -747,7 +748,7 @@
         let pInfo = productsDB[drug];
         let totalAmount = qty * pInfo.price;
 
-        activeCart.push({ drug: drug, qty: qty, mode: saleType, totalAmount: totalAmount, bonusAmount: 0, netAmount: totalAmount });
+        activeCart.push({ drug: drug, qty: qty, mode: saleType, totalAmount: totalAmount, bonusAmount: 0, netAmount: (saleType === 'nagd' ? totalAmount : 0) });
         renderNewCart();
     }
 
@@ -755,7 +756,7 @@
         let container = document.getElementById("newCartList");
         container.innerHTML = "";
         activeCart.forEach((item, index) => {
-            let label = `${item.drug} - ${item.qty} qutu | Ümumi: ${item.totalAmount}₼ (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd'})`;
+            let label = `${item.drug} - ${item.qty} qutu | Ümumi: ${item.totalAmount}₼ (${item.mode === 'nisye' ? 'Nisyə - Gözləmədə' : 'Nağd'})`;
             container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeNewCart(${index})">Sil</button></div>`;
         });
     }
@@ -824,7 +825,7 @@
 
             visitReports.push({ 
                 date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: doc, 
-                type: visitLabel, drug: "-", qty: "-", totalAmount: 0, bonusAmount: 0, netAmount: 0, doctorPay: (agr === "Razılaşdı" && advCheck === "beli") ? advAmt : 0 
+                type: visitLabel, drug: "-", qty: "-", totalAmount: 0, bonusAmount: 0, netAmount: 0, doctorPay: (agr === "Razılaşdı" && advCheck === "beli") ? advAmt : 0, isSingleVisitSummary: true, details: `Həkim: ${doc} | Status: ${agr}${advAmt > 0 ? ' | Verilən bonus: ' + advAmt + ' ₼' : ''}` 
             });
 
             sampleLocations.push({ name: doc, region: region, type: "Həkim", lat: 40.4093, lon: 49.8671, address: "Təzə qeydiyyat" });
@@ -838,8 +839,9 @@
             if(!objName) { alert("Aptekin adını daxil edin!"); return; }
             if(activeCart.length === 0) { alert("Səbətə məhsul əlavə edin!"); return; }
 
-            // Yeni aptek dərhal cari apteklər bazasına (pharmacyDebts) və xəritəyə əlavə olunur
             let newPharmStock = {};
+            let summaryDetailsList = [];
+
             activeCart.forEach(item => {
                 let keys = Object.keys(productsDB);
                 let idx = keys.indexOf(item.drug);
@@ -849,11 +851,13 @@
                     newPharmStock[item.drug] = (newPharmStock[item.drug] || 0) + item.qty;
                 }
 
+                summaryDetailsList.push(`${item.drug}: ${item.qty} qutu (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd'})`);
+
                 visitReports.push({ 
                     date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: objName, 
-                    type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd Satış'})`, 
+                    type: `Yeni Aptek Qeydiyyatı`, 
                     drug: item.drug, qty: item.qty, 
-                    totalAmount: item.totalAmount, bonusAmount: 0, netAmount: item.totalAmount, doctorPay: 0 
+                    totalAmount: item.totalAmount, bonusAmount: 0, netAmount: (item.mode === 'nagd' ? item.totalAmount : 0), doctorPay: 0, isCashSale: (item.mode === 'nagd') 
                 });
             });
 
@@ -871,7 +875,7 @@
         updateAdminTotalStock();
         updateAdminAgentBudgets();
         initUserMap();
-        alert("Check-in uğurla tamamlandı və cari apteklər siyahısına əlavə olundu!");
+        alert("Check-in uğurla tamamlandı, yeni aptek cari siyahıya və xəritəyə əlavə olundu!");
     }
 
     function filterRouteReport() {
@@ -887,27 +891,46 @@
             return matchAgent && matchDate;
         });
 
-        let totalVisits = filtered.length;
+        // Obyekt və vaxta görə qruplaşdırıb tək sətrdə göstərmək üçün
+        let groupedVisits = {};
+        filtered.forEach(r => {
+            let key = `${r.dateTime}_${r.agent}_${r.obj}`;
+            if(!groupedVisits[key]) {
+                groupedVisits[key] = { dateTime: r.dateTime, agent: r.agent, region: r.region, obj: r.obj, types: [], docPay: 0, itemsSummary: [] };
+            }
+            if(!groupedVisits[key].types.includes(r.type)) groupedVisits[key].types.push(r.type);
+            if(r.doctorPay > 0) groupedVisits[key].docPay += r.doctorPay;
+            if(r.drug && r.drug !== "-") {
+                groupedVisits[key].itemsSummary.push(`${r.drug} (${r.qty} qut)`);
+            }
+        });
+
+        let totalVisitsCount = Object.keys(groupedVisits).length;
         let newPharmacies = filtered.filter(r => r.type.includes("Yeni Aptek")).length;
         let doctors = filtered.filter(r => r.type.includes("Həkim")).length;
 
         summaryBox.innerHTML = `
-            <div class="stat-box"><div class="stat-num">${totalVisits}</div><div class="stat-label">Ümumi Ziyarət</div></div>
+            <div class="stat-box"><div class="stat-num">${totalVisitsCount}</div><div class="stat-label">Ümumi Ziyarət</div></div>
             <div class="stat-box"><div class="stat-num">${newPharmacies}</div><div class="stat-label">Yeni Aptek</div></div>
             <div class="stat-box"><div class="stat-num">${doctors}</div><div class="stat-label">Həkim Ziyarəti</div></div>
         `;
 
-        if(filtered.length === 0) {
+        if(Object.keys(groupedVisits).length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#78909c;">Seçilmiş tarixdə məlumat yoxdur.</td></tr>`;
             return;
         }
 
-        filtered.forEach(r => {
-            let docPayText = (r.doctorPay && r.doctorPay > 0) ? `<b>${r.doctorPay} ₼</b>` : "-";
+        for(let key in groupedVisits) {
+            let item = groupedVisits[key];
+            let typeDesc = item.types.join(", ");
+            if(item.itemsSummary.length > 0) {
+                typeDesc += ` [Məhsullar: ${item.itemsSummary.join(", ")}]`;
+            }
+            let docPayText = (item.docPay > 0) ? `<b>${item.docPay} ₼</b>` : "-";
             let tr = document.createElement("tr");
-            tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.region}</td><td>${r.obj}</td><td>${r.type}</td><td>${docPayText}</td>`;
+            tr.innerHTML = `<td>${item.dateTime}</td><td><b>${item.agent}</b></td><td>${item.region}</td><td>${item.obj}</td><td>${typeDesc}</td><td>${docPayText}</td>`;
             tbody.appendChild(tr);
-        });
+        }
     }
 
     function filterStockReport() {
@@ -926,7 +949,7 @@
 
         if(filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#78909c;">Seçilmiş tarixdə aptek satış/stok əməliyyatı yoxdur.</td></tr>`;
-            calcBox.innerHTML = `Total Miqdar: 0 qutu | Total Ümumi: 0 ₼ | Bonus: 0 ₼ | Net Məbləğ: 0 ₼`;
+            calcBox.innerHTML = `Ümumi Maliyyə Hesabatı:<br> Nağd Qazanc: 0 ₼ | Nisyə Gözləmədə: 0 qutu | Bonuslar: 0 ₼ | Saf Net Qazanc: 0 ₼`;
             return;
         }
 
@@ -934,6 +957,7 @@
         let totalAmountSum = 0;
         let totalBonusSum = 0;
         let totalNetSum = 0;
+        let nisyeQtySum = 0;
 
         filtered.forEach(r => {
             let qty = (r.qty !== "-" && !isNaN(r.qty)) ? parseInt(r.qty) : 0;
@@ -941,10 +965,14 @@
             let bon = r.bonusAmount || 0;
             let net = r.netAmount || 0;
 
-            totalQtySum += qty;
-            totalAmountSum += tot;
-            totalBonusSum += bon;
-            totalNetSum += net;
+            if(r.type.includes("Nisyə") || r.type.includes("Əlavə Nisyə")) {
+                nisyeQtySum += qty;
+            } else {
+                totalQtySum += qty;
+                totalAmountSum += tot;
+                totalBonusSum += bon;
+                totalNetSum += net;
+            }
 
             let tr = document.createElement("tr");
             tr.innerHTML = `
@@ -961,7 +989,7 @@
             tbody.appendChild(tr);
         });
 
-        calcBox.innerHTML = `🧮 KALKULYATOR TOTAL (Yalnız Aptek):<br> Miqdar: ${totalQtySum} qutu | Ümumi Mədaxil: ${totalAmountSum} ₼ | Aptek Bonusu: ${totalBonusSum} ₼ | Saf Net Qazanc: ${totalNetSum} ₼`;
+        calcBox.innerHTML = `📊 ÜMUMİ MALİYYƏ HESABATI VƏ İCRA GÖSTƏRICILƏRI:<br> Nağd Satış Miqdarı: ${totalQtySum} qutu | Ümumi Nağd Mədaxil: ${totalAmountSum} ₼ | Verilən Bonuslar: ${totalBonusSum} ₼ | <b>Saf Net Qazanc: ${totalNetSum} ₼</b><br><span style="color:#0277bd;">Nisyə Verilib Gözləmədə Olan: ${nisyeQtySum} qutu</span>`;
     }
 
     function openAgentReportModal() {
@@ -978,13 +1006,18 @@
             html += `<div class="table-container"><table><thead><tr><th>Tarix/Saat</th><th>Obyekt</th><th>Əməliyyat</th><th>Məhsul</th><th>Miq</th><th>Məbləğ</th></tr></thead><tbody>`;
             
             let myNetSum = 0;
+            let nisyeCountSum = 0;
             filtered.forEach(r => {
                 let net = r.netAmount || 0;
-                myNetSum += net;
+                if(r.type.includes("Nisyə") || r.type.includes("Əlavə Nisyə")) {
+                    nisyeCountSum += (r.qty !== "-" ? parseInt(r.qty) : 0);
+                } else {
+                    myNetSum += net;
+                }
                 html += `<tr><td>${r.dateTime}</td><td><b>${r.obj}</b></td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${net} ₼</b></td></tr>`;
             });
             html += `</tbody></table></div>`;
-            html += `<div class="calc-total-box" style="margin-top:10px;">Günlük Yığılan Net Məbləğ: <b>${myNetSum} ₼</b></div>`;
+            html += `<div class="calc-total-box" style="margin-top:10px;">Günlük Nağd Yığılan Net Qazanc: <b>${myNetSum} ₼</b><br><span style="font-weight:normal; font-size:11px;">Nisyə Verilib Gözləmədə Olan Məhsul: ${nisyeCountSum} qutu</span></div>`;
             content.innerHTML = html;
         }
 
