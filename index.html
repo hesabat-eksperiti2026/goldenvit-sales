@@ -18,7 +18,7 @@
         }
         html { touch-action: manipulation; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; box-sizing: border-box; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 480px; margin: 0 auto; background: var(--card-bg); min-height: 100vh; padding: 16px; box-shadow: 0 0 15px rgba(0,0,0,0.08); overflow-x: hidden; }
+        .container { max-width: 480px; margin: 0 auto; background: var(--card-bg); min-height: 100vh; padding: 16px; box-shadow: 0 0 15px rgba(0,0,0,0.08); overflow-x: hidden; position: relative; }
         
         .header { text-align: center; padding: 15px 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 15px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 10px; cursor: pointer; }
         .logo-text { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
@@ -62,6 +62,10 @@
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 6px; font-size: 12px; }
         .debt-box { background: #fff3e0; border: 1px solid #ffe082; padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 12px; color: #e65100; }
         .nav-btn { background: #0277bd; margin-top: 8px; }
+
+        /* Tam ekran popup pəncərələr (Modal overlay) */
+        .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box; }
+        .modal-content { background: #fff; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -110,9 +114,9 @@
 
     <!-- ADMIN ƏSAS PANELİ -->
     <div id="adminPanel" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div class="badge" style="margin:0;">👑 Admin (İsmayıl)</div>
-            <button style="width: auto; margin: 0; padding: 6px 10px; font-size: 12px; background: #0277bd;" onclick="showReportPage()">📊 İşçi Hesabatı</button>
+        <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+            <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #0277bd;" onclick="showRouteReportPage()">🛣️ Rut Hesabatı</button>
+            <button style="flex:1; margin:0; padding: 8px; font-size: 11px; background: #2e7d32;" onclick="showStockReportPage()">📦 Stok Hesabatı</button>
         </div>
         
         <div class="card" style="background: #e8f5e9; border: 1px solid var(--primary);">
@@ -159,18 +163,18 @@
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
     </div>
 
-    <!-- ADMIN HESABAT SƏHİFƏSİ -->
-    <div id="adminReportPage" class="hidden">
+    <!-- ADMIN: RUT HESABATI SƏHİFƏSİ -->
+    <div id="adminRouteReportPage" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div class="badge" style="margin:0;">📊 İşçi Hesabatları</div>
+            <div class="badge" style="margin:0;">🛣️ Rut & Ziyarət Hesabatı</div>
             <button style="width: auto; margin: 0; padding: 6px 10px; font-size: 12px; background: var(--secondary);" onclick="showAdminMainPage()">⬅️ Panelə Qayıt</button>
         </div>
 
         <div class="card">
-            <h3>📋 Ziyarət, Nağd və Nisyə Cədvəli</h3>
+            <h3>📊 İşçilərin Ziyarət Statistikası</h3>
             <label>İşçi Seçin:</label>
-            <select id="filterAgent" onchange="filterReport()">
-                <option value="all">Bütün İşçilər (Total)</option>
+            <select id="filterRouteAgent" onchange="filterRouteReport()">
+                <option value="all">Bütün İşçilər</option>
                 <option value="İşçi 1">İşçi 1</option>
                 <option value="İşçi 2">İşçi 2</option>
                 <option value="İşçi 3">İşçi 3</option>
@@ -181,21 +185,48 @@
             </select>
             
             <label>Tarix:</label>
-            <input type="date" id="filterDate" value="2026-07-27" onchange="filterReport()">
+            <input type="date" id="filterRouteDate" value="2026-07-27" onchange="filterRouteReport()">
 
+            <div id="routeSummaryBox" class="stats-grid" style="margin-top: 10px;"></div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tarix/Saat</th>
+                        <th>İşçi</th>
+                        <th>Rayon</th>
+                        <th>Obyekt</th>
+                        <th>Ziyarət Növü</th>
+                    </tr>
+                </thead>
+                <tbody id="routeTableBody"></tbody>
+            </table>
+        </div>
+        <button class="logout-btn" onclick="logout()">Çıxış Et</button>
+    </div>
+
+    <!-- ADMIN: STOK HESABATI SƏHİFƏSİ -->
+    <div id="adminStockReportPage" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div class="badge" style="margin:0;">📦 Aptek Stok & Satış Hesabatı</div>
+            <button style="width: auto; margin: 0; padding: 6px 10px; font-size: 12px; background: var(--secondary);" onclick="showAdminMainPage()">⬅️ Panelə Qayıt</button>
+        </div>
+
+        <div class="card">
+            <h3>📋 Aptek Üzrə Nağd və Nisyə Balansı</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Tarix</th>
                         <th>İşçi</th>
-                        <th>Obyekt</th>
+                        <th>Aptek</th>
                         <th>Əməliyyat</th>
                         <th>Məhsul</th>
                         <th>Miqdar</th>
-                        <th>Nağd / Nisyə Məbləğ</th>
+                        <th>Məbləğ</th>
                     </tr>
                 </thead>
-                <tbody id="reportTableBody"></tbody>
+                <tbody id="stockReportTableBody"></tbody>
             </table>
         </div>
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
@@ -215,118 +246,47 @@
             <div id="stockList"></div>
         </div>
 
-        <!-- YENİ BÖLMƏ: APTEK STOKU (Qalıq İdarəetməsi və Nağdlaşdırma) -->
-        <div class="card" style="border: 2px solid var(--primary); background: #f1f8e9;">
-            <h3>🏪 Aptek Stoku & Nisyə / Nağdlaşdırma</h3>
-            <p style="font-size: 11px; color: #558b2f; margin: 0 0 8px 0;">Apteklərdəki mövcud malları yoxlayın və nağdlaşdırın.</p>
-            <button style="background: var(--primary); margin-top: 0;" onclick="openPharmacyStockModal()">Aptek Stokunu Aç</button>
+        <!-- Sürətli Əməliyyat Düymələri (Xəritədən Yuxarıda) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
+            <button style="background: #0277bd; margin:0; font-size: 13px;" onclick="openPharmacyStockModal()">🏪 Aptek Stoku</button>
+            <button style="background: #ffa000; margin:0; font-size: 13px;" onclick="openVisitFormModal()">📝 Yeni Ziyarət</button>
         </div>
 
+        <!-- Xəritə Həmişə Aşağıda -->
         <div class="card">
             <h3>🔍 Ərazi Xəritəsi və Obyektlər</h3>
             <div id="map"></div>
         </div>
 
-        <div class="card" style="text-align: center; background: #fff8e1; border-color: #ffe082;">
-            <h3>🚀 Yeni Ziyarət / İlk Qeydiyyat</h3>
-            <button style="background: #ffa000; margin-top: 0;" onclick="openVisitFormModal()">Yeni Ziyarət Formunu Aç</button>
-        </div>
+        <!-- APTEK STOKU MODAL (Tam Pəncərə) -->
+        <div id="pharmacyStockModal" class="fullscreen-modal hidden">
+            <div class="modal-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0; color: #01579b;">🏪 Aptek Stoku İdarəetməsi</h3>
+                    <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closePharmacyStockModal()">Bağla</button>
+                </div>
 
-        <!-- APTEK STOKU MODAL SƏHİFƏSİ -->
-        <div id="pharmacyStockModal" class="card hidden" style="border: 2px solid #0277bd; background: #e1f5fe;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <h3 style="margin: 0; color: #01579b;">🏪 Aptek Stoku İdarəetməsi</h3>
-                <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closePharmacyStockModal()">Bağla</button>
-            </div>
-
-            <label>Rayon / Şəhər Seçin:</label>
-            <select id="stockRegionSelect" onchange="populateStockPharmacies()">
-                <option value="">-- Rayon Seçin --</option>
-            </select>
-
-            <label>Aptek Seçin:</label>
-            <select id="stockPharmacySelect" onchange="showPharmacyStockDetails()">
-                <option value="">-- Əvvəlcə rayon seçin --</option>
-            </select>
-
-            <div id="pharmacyStockDetailView" class="hidden" style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #b3e5fc;">
-                <div id="pharmacyStockListContent"></div>
-                
-                <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
-                <select id="pharmacyOpType">
-                    <option value="nagdlashdirma">Satılanı Nağdlaşdır (Pulunu al)</option>
-                    <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
+                <label>Rayon / Şəhər Seçin:</label>
+                <select id="stockRegionSelect" onchange="populateStockPharmacies()">
+                    <option value="">-- Rayon Seçin --</option>
                 </select>
 
-                <label>Məhsul:</label>
-                <select id="pharmacyStockDrug">
-                    <option value="Golden Flexty">Golden Flexty (25₼)</option>
-                    <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
-                    <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
-                    <option value="Golden Immunix">Golden Immunix (23₼)</option>
-                    <option value="Golden Biotin">Golden Biotin (30₼)</option>
-                    <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
-                    <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
-                    <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                <label>Aptek Seçin:</label>
+                <select id="stockPharmacySelect" onchange="showPharmacyStockDetails()">
+                    <option value="">-- Əvvəlcə rayon seçin --</option>
                 </select>
 
-                <label>Miqdar (Qutu):</label>
-                <input type="number" id="pharmacyStockQty" value="1" min="1">
+                <div id="pharmacyStockDetailView" class="hidden" style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #b3e5fc;">
+                    <div id="pharmacyStockListContent"></div>
+                    
+                    <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
+                    <select id="pharmacyOpType">
+                        <option value="nagdlashdirma">Satılanı Nağdlaşdır (Pulunu al)</option>
+                        <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
+                    </select>
 
-                <button type="button" style="background: #0277bd;" onclick="executePharmacyStockOp()">Təsdiq Et & Qeydə Al</button>
-                <a id="pharmacyWazeBtn" href="#" target="_blank" class="nav-btn" style="display:none; text-align:center; padding:10px; color:white; text-decoration:none; border-radius:6px; font-size:14px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>
-            </div>
-        </div>
-
-        <!-- Ziyarət Formu (Yalnız Yeni Aptek / Həkim üçün) -->
-        <div id="visitFormCard" class="card hidden" style="border: 2px solid var(--secondary);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <h3 style="margin: 0;">📝 Yeni Ziyarət Formu</h3>
-                <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeVisitFormModal()">Bağla</button>
-            </div>
-
-            <label>Rayon / Şəhər:</label>
-            <select id="regionSelect">
-                <!-- Dinamik işçiyə uyğun doldurulacaq -->
-            </select>
-
-            <label>Ziyarət Növü:</label>
-            <select id="visitType" onchange="toggleVisitFields()">
-                <option value="hekim">Həkim Ziyarəti</option>
-                <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat)</option>
-            </select>
-
-            <!-- Həkim -->
-            <div id="hekimFields" class="visit-section">
-                <label>Həkimin Adı və Soyadı:</label>
-                <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov">
-                <label>Əlaqə Nömrəsi:</label>
-                <input type="text" id="doctorPhone" placeholder="050-000-00-00">
-                <label>Ressept Razılığı:</label>
-                <select id="doctorAgreement">
-                    <option value="Razılaşdı">Razılaşdı (Resseptə yazır)</option>
-                    <option value="Düşünür">Düşünür / Təkrar görüş</option>
-                </select>
-            </div>
-
-            <!-- Yeni Aptek -->
-            <div id="yeniAptekFields" class="visit-section hidden">
-                <label>Aptekin Adı:</label>
-                <input type="text" id="newPharmacyName" placeholder="Zəfər Aptek">
-                <label>Müdirin Adı Soyadı:</label>
-                <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
-                <label>Əlaqə Nömrəsi:</label>
-                <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
-                
-                <label>Satış Növü:</label>
-                <select id="newSaleType">
-                    <option value="nisye">Nisyə Ver</option>
-                    <option value="nagd">Nağd Sat</option>
-                </select>
-
-                <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
                     <label>Məhsul:</label>
-                    <select id="newDrugSelect">
+                    <select id="pharmacyStockDrug">
                         <option value="Golden Flexty">Golden Flexty (25₼)</option>
                         <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
                         <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
@@ -336,14 +296,82 @@
                         <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
                         <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
                     </select>
-                    <label>Miqdar (Qutu):</label>
-                    <input type="number" id="newDrugQty" value="1" min="1">
-                    <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addNewPharmacyItem()">➕ Səbətə Əlavə Et</button>
-                </div>
-                <div id="newCartList" style="margin-top:6px;"></div>
-            </div>
 
-            <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
+                    <label>Miqdar (Qutu):</label>
+                    <input type="number" id="pharmacyStockQty" value="1" min="1">
+
+                    <button type="button" style="background: #0277bd;" onclick="executePharmacyStockOp()">Təsdiq Et & Qeydə Al</button>
+                    <a id="pharmacyWazeBtn" href="#" target="_blank" class="nav-btn" style="display:block; text-align:center; padding:10px; color:white; text-decoration:none; border-radius:6px; font-size:14px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ZİYARƏT FORMU MODAL (Tam Pəncərə) -->
+        <div id="visitFormModal" class="fullscreen-modal hidden">
+            <div class="modal-content" style="border: 2px solid var(--secondary);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0;">📝 Yeni Ziyarət Formu</h3>
+                    <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeVisitFormModal()">Bağla</button>
+                </div>
+
+                <label>Rayon / Şəhər:</label>
+                <select id="regionSelect"></select>
+
+                <label>Ziyarət Növü:</label>
+                <select id="visitType" onchange="toggleVisitFields()">
+                    <option value="hekim">Həkim Ziyarəti</option>
+                    <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat)</option>
+                </select>
+
+                <!-- Həkim -->
+                <div id="hekimFields" class="visit-section">
+                    <label>Həkimin Adı və Soyadı:</label>
+                    <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov">
+                    <label>Əlaqə Nömrəsi:</label>
+                    <input type="text" id="doctorPhone" placeholder="050-000-00-00">
+                    <label>Ressept Razılığı:</label>
+                    <select id="doctorAgreement">
+                        <option value="Razılaşdı">Razılaşdı (Resseptə yazır)</option>
+                        <option value="Düşünür">Düşünür / Təkrar görüş</option>
+                    </select>
+                </div>
+
+                <!-- Yeni Aptek -->
+                <div id="yeniAptekFields" class="visit-section hidden">
+                    <label>Aptekin Adı:</label>
+                    <input type="text" id="newPharmacyName" placeholder="Zəfər Aptek">
+                    <label>Müdirin Adı Soyadı:</label>
+                    <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
+                    <label>Əlaqə Nömrəsi:</label>
+                    <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
+                    
+                    <label>Satış Növü:</label>
+                    <select id="newSaleType">
+                        <option value="nisye">Nisyə Ver</option>
+                        <option value="nagd">Nağd Sat</option>
+                    </select>
+
+                    <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
+                        <label>Məhsul:</label>
+                        <select id="newDrugSelect">
+                            <option value="Golden Flexty">Golden Flexty (25₼)</option>
+                            <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
+                            <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
+                            <option value="Golden Immunix">Golden Immunix (23₼)</option>
+                            <option value="Golden Biotin">Golden Biotin (30₼)</option>
+                            <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
+                            <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
+                            <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                        </select>
+                        <label>Miqdar (Qutu):</label>
+                        <input type="number" id="newDrugQty" value="1" min="1">
+                        <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addNewPharmacyItem()">➕ Səbətə Əlavə Et</button>
+                    </div>
+                    <div id="newCartList" style="margin-top:6px;"></div>
+                </div>
+
+                <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
+            </div>
         </div>
 
         <button class="logout-btn" onclick="logout()">Çıxış Et</button>
@@ -358,7 +386,6 @@
     let currentAgent = "İşçi 1";
     let activeCart = [];
 
-    // İşçilərin ərazi bölgüsü
     let agentRegions = {
         "İşçi 1": ["Şirvan", "Salyan"],
         "İşçi 2": ["Gəncə", "Tovuz"],
@@ -401,7 +428,6 @@
         "İşçi 7": [15, 20, 10, 15, 12, 10, 14, 10]
     };
 
-    // Apteklərdə qalan nisyə mallar
     let pharmacyDebts = {
         "Zeytun Aptek #4": { region: "Bakı Mərkəz", lat: 40.4150, lon: 49.8550, address: "Nizami küç. 12", stock: { "Golden Flexty": 5, "Golden Vitamin D3": 3 } },
         "Ailə Apteki": { region: "Bakı Mərkəz", lat: 40.4020, lon: 49.8800, address: "Bülbül pr. 45", stock: { "Golden Biotin": 4 } },
@@ -448,20 +474,28 @@
 
     function logout() {
         document.getElementById("adminPanel").classList.add("hidden");
-        document.getElementById("adminReportPage").classList.add("hidden");
+        document.getElementById("adminRouteReportPage").classList.add("hidden");
+        document.getElementById("adminStockReportPage").classList.add("hidden");
         document.getElementById("agentPanel").classList.add("hidden");
         document.getElementById("loginScreen").classList.remove("hidden");
         document.getElementById("loginPassword").value = "";
     }
 
-    function showReportPage() {
+    function showRouteReportPage() {
         document.getElementById("adminPanel").classList.add("hidden");
-        document.getElementById("adminReportPage").classList.remove("hidden");
-        filterReport();
+        document.getElementById("adminRouteReportPage").classList.remove("hidden");
+        filterRouteReport();
+    }
+
+    function showStockReportPage() {
+        document.getElementById("adminPanel").classList.add("hidden");
+        document.getElementById("adminStockReportPage").classList.remove("hidden");
+        filterStockReport();
     }
 
     function showAdminMainPage() {
-        document.getElementById("adminReportPage").classList.add("hidden");
+        document.getElementById("adminRouteReportPage").classList.add("hidden");
+        document.getElementById("adminStockReportPage").classList.add("hidden");
         document.getElementById("adminPanel").classList.remove("hidden");
         updateAdminTotalStock();
         setTimeout(() => { if(adminMap) adminMap.invalidateSize(); }, 200);
@@ -519,14 +553,16 @@
         }
     }
 
-    // Aptek Stoku Modalı
-    function openPharmacyStockModal() {
-        document.getElementById("pharmacyStockModal").classList.remove("hidden");
+    // Modal idarəetmələri
+    function openPharmacyStockModal() { document.getElementById("pharmacyStockModal").classList.remove("hidden"); }
+    function closePharmacyStockModal() { document.getElementById("pharmacyStockModal").classList.add("hidden"); document.getElementById("pharmacyStockDetailView").classList.add("hidden"); }
+
+    function openVisitFormModal() { 
+        activeCart = [];
+        document.getElementById("newCartList").innerHTML = "";
+        document.getElementById("visitFormModal").classList.remove("hidden"); 
     }
-    function closePharmacyStockModal() {
-        document.getElementById("pharmacyStockModal").classList.add("hidden");
-        document.getElementById("pharmacyStockDetailView").classList.add("hidden");
-    }
+    function closeVisitFormModal() { document.getElementById("visitFormModal").classList.add("hidden"); }
 
     function populateStockPharmacies() {
         let reg = document.getElementById("stockRegionSelect").value;
@@ -549,10 +585,7 @@
         let contentDiv = document.getElementById("pharmacyStockListContent");
         let wazeBtn = document.getElementById("pharmacyWazeBtn");
 
-        if(!pName) {
-            detailView.classList.add("hidden");
-            return;
-        }
+        if(!pName) { detailView.classList.add("hidden"); return; }
 
         let pData = pharmacyDebts[pName];
         let text = `<b>📦 ${pName} - Mövcud Nisyə Mallar:</b><br>`;
@@ -565,13 +598,10 @@
             }
         }
 
-        if(!hasStock) {
-            text += `<i>Bu aptekdə hazırda nisyə mal yoxdur.</i>`;
-        }
+        if(!hasStock) { text += `<i>Bu aptekdə hazırda nisyə mal yoxdur.</i>`; }
 
         contentDiv.innerHTML = text;
         wazeBtn.setAttribute("href", `https://www.waze.com/ul?ll=${pData.lat},${pData.lon}&navigate=yes`);
-        wazeBtn.style.display = "block";
         detailView.classList.remove("hidden");
     }
 
@@ -615,14 +645,6 @@
         updateAdminTotalStock();
         showPharmacyStockDetails();
     }
-
-    function openVisitFormModal() { 
-        activeCart = [];
-        document.getElementById("newCartList").innerHTML = "";
-        document.getElementById("visitFormCard").classList.remove("hidden"); 
-    }
-    
-    function closeVisitFormModal() { document.getElementById("visitFormCard").classList.add("hidden"); }
 
     function toggleVisitFields() {
         let type = document.getElementById("visitType").value;
@@ -733,10 +755,11 @@
         closeVisitFormModal();
     }
 
-    function filterReport() {
-        let selAgent = document.getElementById("filterAgent").value;
-        let selDate = document.getElementById("filterDate").value;
-        let tbody = document.getElementById("reportTableBody");
+    function filterRouteReport() {
+        let selAgent = document.getElementById("filterRouteAgent").value;
+        let selDate = document.getElementById("filterRouteDate").value;
+        let tbody = document.getElementById("routeTableBody");
+        let summaryBox = document.getElementById("routeSummaryBox");
         tbody.innerHTML = "";
 
         let filtered = visitReports.filter(r => {
@@ -745,12 +768,40 @@
             return matchAgent && matchDate;
         });
 
+        let totalVisits = filtered.length;
+        let newPharmacies = filtered.filter(r => r.type.includes("Yeni Aptek")).length;
+        let doctors = filtered.filter(r => r.type.includes("Həkim")).length;
+
+        summaryBox.innerHTML = `
+            <div class="stat-box"><div class="stat-num">${totalVisits}</div><div class="stat-label">Ümumi Ziyarət</div></div>
+            <div class="stat-box"><div class="stat-num">${newPharmacies}</div><div class="stat-label">Yeni Aptek</div></div>
+            <div class="stat-box"><div class="stat-num">${doctors}</div><div class="stat-label">Həkim Ziyarəti</div></div>
+        `;
+
         if(filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#78909c;">Seçilmiş tarix və işçi üzrə məlumat yoxdur.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#78909c;">Seçilmiş tarixdə məlumat yoxdur.</td></tr>`;
             return;
         }
 
         filtered.forEach(r => {
+            let tr = document.createElement("tr");
+            tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.region}</td><td>${r.obj}</td><td>${r.type}</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterStockReport() {
+        let tbody = document.getElementById("stockReportTableBody");
+        tbody.innerHTML = "";
+
+        let stockOps = visitReports.filter(r => r.type.includes("Nağdlaşdırma") || r.type.includes("Nisyə") || r.type.includes("Nağd Satış"));
+
+        if(stockOps.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#78909c;">Stok və satış əməliyyatı yoxdur.</td></tr>`;
+            return;
+        }
+
+        stockOps.forEach(r => {
             let tr = document.createElement("tr");
             tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.obj}</td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${r.amount}</b></td>`;
             tbody.appendChild(tr);
