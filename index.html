@@ -83,7 +83,7 @@
                     <div class="stat-label">Aktiv Məhsul</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-num">6</div>
+                    <div class="stat-num">7</div>
                     <div class="stat-label">Aktiv İşçi</div>
                 </div>
             </div>
@@ -97,6 +97,7 @@
                 <option value="İşçi 4">👤 İşçi 4 (Lənkəran / Astara)</option>
                 <option value="İşçi 5">👤 İşçi 5 (Quba / Xaçmaz)</option>
                 <option value="İşçi 6">👤 İşçi 6 (Sumqayıt / Abşeron)</option>
+                <option value="İşçi 7">👤 İşçi 7 (Bakı Mərkəz)</option>
             </select>
 
             <label>Şifrə:</label>
@@ -137,6 +138,7 @@
                 <option value="İşçi 4">İşçi 4</option>
                 <option value="İşçi 5">İşçi 5</option>
                 <option value="İşçi 6">İşçi 6</option>
+                <option value="İşçi 7">İşçi 7 (Bakı Mərkəz)</option>
             </select>
 
             <label>Məhsul:</label>
@@ -188,6 +190,7 @@
                 <option value="İşçi 4">İşçi 4</option>
                 <option value="İşçi 5">İşçi 5</option>
                 <option value="İşçi 6">İşçi 6</option>
+                <option value="İşçi 7">İşçi 7 (Bakı Mərkəz)</option>
             </select>
             
             <label>Tarix:</label>
@@ -199,7 +202,7 @@
                         <th>Tarix</th>
                         <th>İşçi</th>
                         <th>Obyekt</th>
-                        <th>Növ</th>
+                        <th>Əməliyyat</th>
                         <th>Məhsul</th>
                         <th>Miqdar</th>
                         <th>Məbləğ</th>
@@ -246,19 +249,19 @@
 
             <label>Rayon / Şəhər:</label>
             <select id="regionSelect">
+                <option value="Bakı Mərkəz">Bakı Mərkəz</option>
                 <option value="Şirvan">Şirvan / Salyan</option>
                 <option value="Gəncə">Gəncə / Tovuz</option>
                 <option value="Şəki">Şəki / Qəbələ</option>
                 <option value="Lənkəran">Lənkəran / Astara</option>
                 <option value="Quba">Quba / Xaçmaz</option>
-                <option value="Bakı">Bakı / Abşeron</option>
             </select>
 
             <label>Ziyarət Növü:</label>
             <select id="visitType" onchange="toggleVisitFields()">
                 <option value="hekim">Həkim Ziyarəti</option>
-                <option value="yeni_aptek">Yeni Aptek (Konsiqnasiya)</option>
-                <option value="cari_aptek">Cari Aptek (Nisyə / Nağdlaşdırma)</option>
+                <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat / Mal Verilişi)</option>
+                <option value="cari_aptek">Cari Aptek (Növbəti Ziyarət / Nağdlaşdırma)</option>
             </select>
 
             <!-- Həkim -->
@@ -283,13 +286,13 @@
                 <label>Əlaqə Nömrəsi:</label>
                 <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
                 
-                <label>Mal Verilirmi (Nisyə / Konsiqnasiya)?</label>
-                <select id="newSoldCheck" onchange="toggleNewDrugFields()">
-                    <option value="xeyr">Xeyr (Yalnız tanışlıq)</option>
-                    <option value="beli">Bəli (Nisyə mal ver)</option>
+                <label>Satış növü:</label>
+                <select id="newSaleType" onchange="toggleNewSaleType()">
+                    <option value="nisye">Nisyə (Konsiqnasiya)</option>
+                    <option value="nagd">Birbaşa Nağd Satış</option>
                 </select>
 
-                <div id="newDrugSubFields" class="hidden" style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
+                <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
                     <label>Məhsul:</label>
                     <select id="newDrugSelect">
                         <option value="Golden Flexty">Golden Flexty (25₼)</option>
@@ -303,7 +306,7 @@
                     </select>
                     <label>Miqdar (Qutu):</label>
                     <input type="number" id="newDrugQty" value="1" min="1">
-                    <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addCartItem('yeni')">➕ Səbətə Əlavə Et</button>
+                    <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addNewPharmacyItem()">➕ Səbətə Əlavə Et</button>
                 </div>
                 <div id="newCartList" style="margin-top:6px;"></div>
             </div>
@@ -322,33 +325,33 @@
                     <a id="wazeLinkBtn" href="#" target="_blank" style="background:#0277bd; color:white; padding:6px 12px; text-decoration:none; border-radius:6px; display:inline-block; font-size:12px; font-weight:bold;">🚗 Waze ilə Yol Tərifi Al</a>
                 </div>
 
-                <!-- Aptekin cari nisyə borc statusu burda görünəcək -->
+                <!-- Aptekin cari qalıqları -->
                 <div id="pharmacyDebtInfo" class="debt-box hidden"></div>
 
-                <div id="cariActionContainer" class="hidden" style="margin-top: 10px;">
-                    <label>Əməliyyat Növü:</label>
+                <div id="cariActionContainer" class="hidden" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
+                    <label>Əməliyyat Seçin:</label>
                     <select id="cariOpType" onchange="toggleCariOpFields()">
-                        <option value="nagdlashdirma">Satılanı Nağdlaşdır (Pulunu al)</option>
-                        <option value="yeni_nisye">Əlavə Nisyə Mal Ver</option>
+                        <option value="nagdlashdirma">1. Aptekdəki Nisyə Malı Nağdlaşdır (Pulunu Al)</option>
+                        <option value="elave_nisye">2. Aptekə Əlavə Nisyə Mal Ver</option>
+                        <option value="birbasa_nagd">3. Aptekə Birbaşa Nağd Satış Et</option>
                     </select>
 
-                    <label style="margin-top: 10px;">Məhsul:</label>
-                    <select id="cariDrugSelect">
-                        <option value="Golden Flexty">Golden Flexty (25₼)</option>
-                        <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
-                        <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
-                        <option value="Golden Immunix">Golden Immunix (23₼)</option>
-                        <option value="Golden Biotin">Golden Biotin (30₼)</option>
-                        <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
-                        <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
-                        <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
-                    </select>
-                    <label>Miqdar (Qutu):</label>
-                    <input type="number" id="cariDrugQty" value="1" min="1">
-                    
-                    <div id="calculatedAmountBox" style="font-size:12px; font-weight:bold; color:var(--primary); margin-top:6px;"></div>
-
-                    <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addCartItem('cari')">➕ Səbətə Əlavə Et</button>
+                    <div id="cariInputsArea" style="margin-top: 8px;">
+                        <label>Məhsul:</label>
+                        <select id="cariDrugSelect">
+                            <option value="Golden Flexty">Golden Flexty (25₼)</option>
+                            <option value="Golden Vitamin D3">Golden Vitamin D3 (48₼)</option>
+                            <option value="Golden Fish Oil">Golden Fish Oil (25₼)</option>
+                            <option value="Golden Immunix">Golden Immunix (23₼)</option>
+                            <option value="Golden Biotin">Golden Biotin (30₼)</option>
+                            <option value="Golden Glutathione">Golden Glutathione (24₼)</option>
+                            <option value="Golden 5HTP">Golden 5HTP (23₼)</option>
+                            <option value="Golden Curcuma">Golden Curcuma (22₼)</option>
+                        </select>
+                        <label>Miqdar (Qutu):</label>
+                        <input type="number" id="cariDrugQty" value="1" min="1">
+                        <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addCariActionItem()">➕ Əməliyyatı Səbətə At</button>
+                    </div>
                     <div id="cariCartList" style="margin-top:6px;"></div>
                 </div>
             </div>
@@ -396,18 +399,19 @@
         "İşçi 3": [10, 15, 8, 10, 12, 10, 14, 9],
         "İşçi 4": [10, 15, 8, 10, 12, 10, 14, 9],
         "İşçi 5": [10, 15, 8, 10, 12, 10, 14, 9],
-        "İşçi 6": [10, 15, 8, 10, 12, 10, 14, 9]
+        "İşçi 6": [10, 15, 8, 10, 12, 10, 14, 9],
+        "İşçi 7": [15, 20, 10, 15, 12, 10, 14, 10]
     };
 
-    // Apteklərdə qalan nisyə mallar yaddaşı: { "Zeytun Aptek #4": { "Golden Flexty": 5, ... } }
+    // Apteklərdə qalan nisyə mallar
     let pharmacyDebts = {
-        "Zeytun Aptek #4": { "Golden Flexty": 4, "Golden Vitamin D3": 2 },
-        "Ailə Apteki": { "Golden Biotin": 5 }
+        "Zeytun Aptek #4": { "Golden Flexty": 5, "Golden Vitamin D3": 3 },
+        "Ailə Apteki": { "Golden Biotin": 4 }
     };
 
     let visitReports = [
-        { date: "2026-07-27", agent: "İşçi 1", obj: "Zeytun Aptek #4", type: "Yeni Aptek (Nisyə)", drug: "Golden Flexty", qty: 4, amount: "100 ₼" },
-        { date: "2026-07-27", agent: "İşçi 1", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti", drug: "-", qty: "-", amount: "-" }
+        { date: "2026-07-27", dateTime: "2026-07-27 10:00:00", agent: "İşçi 7", obj: "Zeytun Aptek #4", type: "Yeni Aptek (Nisyə)", drug: "Golden Flexty", qty: 5, amount: "125 ₼ (Nisyə)" },
+        { date: "2026-07-27", dateTime: "2026-07-27 11:30:00", agent: "İşçi 1", obj: "Dr. Elçin Məmmədov", type: "Həkim Ziyarəti (Razılaşdı)", drug: "-", qty: "-", amount: "-" }
     ];
 
     let sampleLocations = [
@@ -524,15 +528,40 @@
         if(type === "cari_aptek") document.getElementById("cariAptekFields").classList.remove("hidden");
     }
 
-    function toggleNewDrugFields() {
-        let val = document.getElementById("newSoldCheck").value;
-        if(val === "beli") {
-            document.getElementById("newDrugSubFields").classList.remove("hidden");
-        } else {
-            document.getElementById("newDrugSubFields").classList.add("hidden");
-            activeCart = [];
-            document.getElementById("newCartList").innerHTML = "";
+    function addNewPharmacyItem() {
+        let drug = document.getElementById("newDrugSelect").value;
+        let qty = parseInt(document.getElementById("newDrugQty").value) || 0;
+        let saleType = document.getElementById("newSaleType").value;
+
+        if(qty <= 0) { alert("Miqdar düzgün deyil!"); return; }
+
+        if(saleType === 'nisye') {
+            let idx = drugNames.indexOf(drug);
+            let currentStock = agentStocks[currentAgent][idx];
+            let existingInCart = activeCart.filter(item => item.drug === drug).reduce((sum, item) => sum + item.qty, 0);
+            if(currentStock < (existingInCart + qty)) {
+                alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
+                return;
+            }
         }
+
+        let amount = qty * drugPrices[drug];
+        activeCart.push({ drug: drug, qty: qty, mode: saleType, amount: amount });
+        renderNewCart();
+    }
+
+    function renderNewCart() {
+        let container = document.getElementById("newCartList");
+        container.innerHTML = "";
+        activeCart.forEach((item, index) => {
+            let label = (item.mode === 'nisye') ? `Nisyə: ${item.qty} qutu ${item.drug} (${item.amount} ₼)` : `Nağd Satış: ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
+            container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeNewCart(${index})">Sil</button></div>`;
+        });
+    }
+
+    function removeNewCart(index) {
+        activeCart.splice(index, 1);
+        renderNewCart();
     }
 
     function onCariPharmacySelected() {
@@ -557,7 +586,7 @@
             let debts = pharmacyDebts[pharmacyName];
             
             if(debts && Object.keys(debts).length > 0) {
-                let text = "<b>🛒 Bu aptekdə mövcud Nisyə (Konsiqnasiya) mallar:</b><br>";
+                let text = "<b>🛒 Bu aptekdə olan qalıq Nisyə mallar:</b><br>";
                 for(let d in debts) {
                     if(debts[d] > 0) text += `- ${d}: <b>${debts[d]} qutu</b><br>`;
                 }
@@ -573,69 +602,53 @@
         }
     }
 
-    function toggleCariOpFields() {
-        let op = document.getElementById("cariOpType").value;
-        // Əməliyyat növünə görə məbləğ hesablaması
-    }
-
-    function addCartItem(mode) {
-        let drug = (mode === 'yeni') ? document.getElementById("newDrugSelect").value : document.getElementById("cariDrugSelect").value;
-        let qty = parseInt((mode === 'yeni') ? document.getElementById("newDrugQty").value : document.getElementById("cariDrugQty").value) || 0;
+    function addCariActionItem() {
+        let opType = document.getElementById("cariOpType").value;
+        let drug = document.getElementById("cariDrugSelect").value;
+        let qty = parseInt(document.getElementById("cariDrugQty").value) || 0;
         let pharmacyName = document.getElementById("existingPharmacySelect").value;
 
         if(qty <= 0) { alert("Miqdar düzgün deyil!"); return; }
 
-        if(mode === 'cari') {
-            let op = document.getElementById("cariOpType").value;
-            if(op === 'nagdlashdirma') {
-                // Yoxlayaq görək aptekdə həmin dərmandan nisyə kifayət qədər varmı
-                let debts = pharmacyDebts[pharmacyName] || {};
-                let currentDebt = debts[drug] || 0;
-                if(currentDebt < qty) {
-                    alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} nisyə var! Bundan artıq nağdlaşdıra bilməzsən.`);
-                    return;
-                }
-            } else {
-                // Əlavə nisyə verəndə işçinin çantasını yoxla
-                let idx = drugNames.indexOf(drug);
-                let currentStock = agentStocks[currentAgent][idx];
-                let existingInCart = activeCart.filter(item => item.drug === drug && item.mode === 'yeni_nisye').reduce((sum, item) => sum + item.qty, 0);
-                if(currentStock < (existingInCart + qty)) {
-                    alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
-                    return;
-                }
+        if(opType === 'nagdlashdirma') {
+            let debts = pharmacyDebts[pharmacyName] || {};
+            let currentDebt = debts[drug] || 0;
+            let alreadyInCart = activeCart.filter(i => i.mode === 'nagdlashdirma' && i.drug === drug).reduce((s, i) => s + i.qty, 0);
+            if(currentDebt < (alreadyInCart + qty)) {
+                alert(`Bu aptekdə cəmi ${currentDebt} qutu nisyə var. Bundan artıq nağdlaşdıra bilməzsən!`);
+                return;
             }
-        } else {
-            // Yeni aptek nisyə verəndə çantanı yoxla
+        } else if(opType === 'elave_nisye' || opType === 'birbasa_nagd') {
             let idx = drugNames.indexOf(drug);
             let currentStock = agentStocks[currentAgent][idx];
-            let existingInCart = activeCart.filter(item => item.drug === drug).reduce((sum, item) => sum + item.qty, 0);
-            if(currentStock < (existingInCart + qty)) {
+            let alreadyInCart = activeCart.filter(i => (i.mode === 'elave_nisye' || i.mode === 'birbasa_nagd') && i.drug === drug).reduce((s, i) => s + i.qty, 0);
+            if(currentStock < (alreadyInCart + qty)) {
                 alert("Çantanda kifayət qədər bu dərmandan yoxdur!");
                 return;
             }
         }
 
-        let opMode = (mode === 'yeni') ? 'yeni_nisye' : document.getElementById("cariOpType").value;
-        let unitPrice = drugPrices[drug] || 0;
-        let totalAmount = qty * unitPrice;
-
-        activeCart.push({ drug: drug, qty: qty, mode: opMode, amount: totalAmount });
-        renderCartLists(mode);
+        let amount = qty * drugPrices[drug];
+        activeCart.push({ drug: drug, qty: qty, mode: opType, amount: amount });
+        renderCariCart();
     }
 
-    function renderCartLists(mode) {
-        let container = (mode === 'yeni') ? document.getElementById("newCartList") : document.getElementById("cariCartList");
+    function renderCariCart() {
+        let container = document.getElementById("cariCartList");
         container.innerHTML = "";
         activeCart.forEach((item, index) => {
-            let label = (item.mode === 'nagdlashdirma') ? `Nağdlaşdırma: ${item.qty} qutu ${item.drug} (${item.amount} ₼)` : `Nisyə Mal: ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
-            container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeCartItem(${index}, '${mode}')">Sil</button></div>`;
+            let label = "";
+            if(item.mode === 'nagdlashdirma') label = `Nağdlaşdırma (Pul Alındı): ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
+            else if(item.mode === 'elave_nisye') label = `Əlavə Nisyə: ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
+            else label = `Birbaşa Nağd Satış: ${item.qty} qutu ${item.drug} (${item.amount} ₼)`;
+
+            container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeCariCart(${index})">Sil</button></div>`;
         });
     }
 
-    function removeCartItem(index, mode) {
+    function removeCariCart(index) {
         activeCart.splice(index, 1);
-        renderCartLists(mode);
+        renderCariCart();
     }
 
     function initUserMap() {
@@ -674,7 +687,6 @@
         let selectedDate = document.getElementById("workDate").value;
         let type = document.getElementById("visitType").value;
         let objName = "";
-        let visitTypeLabel = "";
         let timeNow = new Date().toLocaleTimeString();
         let fullDateTime = `${selectedDate} ${timeNow}`;
 
@@ -682,63 +694,49 @@
             let doc = document.getElementById("doctorName").value;
             let agr = document.getElementById("doctorAgreement").value;
             if(!doc) { alert("Həkimin adını daxil edin!"); return; }
-            objName = doc;
-            visitTypeLabel = `Həkim Ziyarəti (${agr})`;
-            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: "-", qty: "-", amount: "-" });
+            visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: doc, type: `Həkim Ziyarəti (${agr})`, drug: "-", qty: "-", amount: "-" });
         } else if(type === "yeni_aptek") {
             objName = document.getElementById("newPharmacyName").value;
             if(!objName) { alert("Aptekin adını daxil edin!"); return; }
-            let soldCheck = document.getElementById("newSoldCheck").value;
-            visitTypeLabel = "Yeni Aptek (Nisyə)";
+            if(activeCart.length === 0) { alert("Səbətə məhsul əlavə edin!"); return; }
 
-            if(soldCheck === "beli" && activeCart.length > 0) {
-                if(!pharmacyDebts[objName]) pharmacyDebts[objName] = {};
+            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = {};
 
-                activeCart.forEach(item => {
+            activeCart.forEach(item => {
+                if(item.mode === 'nisye') {
                     let idx = drugNames.indexOf(item.drug);
-                    if(idx !== -1) {
-                        agentStocks[currentAgent][idx] -= item.qty;
-                    }
-                    // Nisyə borca əlavə et
+                    if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
                     pharmacyDebts[objName][item.drug] = (pharmacyDebts[objName][item.drug] || 0) + item.qty;
-
-                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: visitTypeLabel, drug: item.drug, qty: item.qty, amount: item.amount + " ₼ (Nisyə)" });
-                });
-            } else {
-                visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Yeni Aptek (Tanışlıq)", drug: "Satış yoxdur", qty: 0, amount: "0 ₼" });
-            }
+                }
+                visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə' : 'Nağd'})`, drug: item.drug, qty: item.qty, amount: `${item.amount} ₼` });
+            });
         } else {
             objName = document.getElementById("existingPharmacySelect").value;
             if(!objName) { alert("Aptek seçin!"); return; }
-            visitTypeLabel = "Cari Aptek";
+            if(activeCart.length === 0) { alert("Səbətə əməliyyat əlavə edin!"); return; }
 
-            if(activeCart.length > 0) {
-                if(!pharmacyDebts[objName]) pharmacyDebts[objName] = {};
+            if(!pharmacyDebts[objName]) pharmacyDebts[objName] = {};
 
-                activeCart.forEach(item => {
-                    if(item.mode === 'nagdlashdirma') {
-                        // Nisyədən silinir, nağd pula çevrilir (çantaya qayıtmır, çünki satılıb pulu alınıb)
-                        pharmacyDebts[objName][item.drug] -= item.qty;
-                        visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Nağdlaşdırma (Pul Alındı)", drug: item.drug, qty: item.qty, amount: item.amount + " ₼ (Nağd)" });
-                    } else {
-                        // Yeni nisyə verilir (çantadan çıxır)
-                        let idx = drugNames.indexOf(item.drug);
-                        if(idx !== -1) {
-                            agentStocks[currentAgent][idx] -= item.qty;
-                        }
-                        pharmacyDebts[objName][item.drug] = (pharmacyDebts[objName][item.drug] || 0) + item.qty;
-                        visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Əlavə Nisyə Mal", drug: item.drug, qty: item.qty, amount: item.amount + " ₼ (Nisyə)" });
-                    }
-                });
-            } else {
-                alert("Zəhmət olmasa əməliyyat seçib səbətə əlavə edin!");
-                return;
-            }
+            activeCart.forEach(item => {
+                if(item.mode === 'nagdlashdirma') {
+                    pharmacyDebts[objName][item.drug] -= item.qty;
+                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Nağdlaşdırma (Pul Alındı)", drug: item.drug, qty: item.qty, amount: `${item.amount} ₼ (Nağd)` });
+                } else if(item.mode === 'elave_nisye') {
+                    let idx = drugNames.indexOf(item.drug);
+                    if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
+                    pharmacyDebts[objName][item.drug] = (pharmacyDebts[objName][item.drug] || 0) + item.qty;
+                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Cari Aptek - Əlavə Nisyə", drug: item.drug, qty: item.qty, amount: `${item.amount} ₼ (Nisyə)` });
+                } else {
+                    let idx = drugNames.indexOf(item.drug);
+                    if(idx !== -1) agentStocks[currentAgent][idx] -= item.qty;
+                    visitReports.push({ date: selectedDate, dateTime: fullDateTime, agent: currentAgent, obj: objName, type: "Cari Aptek - Birbaşa Nağd", drug: item.drug, qty: item.qty, amount: `${item.amount} ₼ (Nağd)` });
+                }
+            });
         }
 
         updateAgentStockDisplay();
         updateAdminTotalStock();
-        alert("Check-in uğurla tamamlandı və hesabata əlavə olundu!");
+        alert("Check-in uğurla tamamlandı və hesabata yazıldı!");
         closeVisitFormModal();
     }
 
