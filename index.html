@@ -440,7 +440,7 @@
     let selectedNavCoords = { lat: 0, lon: 0 };
 
     let productsDB = {
-        "Golden Biotin n60": { price: 28, bonus: 5, desc: "Tərkibi: Biotin 5000 mcg.<br><b>Göstərişlər:</b> Saç tökülməsi, dırnaq kövrəkliyi, dəri yenilənməsi.<br><b>İstifadə qaydası:</b> Günbəgün 1 kapsul su ilə içilir." },
+        "Golden Biotin n60": { price: 28, bonus: 5, desc: "Tərkibi: Biotin 5000 mcg.<br><b>Göstərişlər:</b> Saç tökülməsi, dırnaq kövrəkliyi, dəri yenilənməsi.<br><b>İstifadə qaydası:</b> Gündə 1 dəfə 1 kapsul bol su ilə içilir." },
         "Golden Bromelain n30": { price: 23, bonus: 4, desc: "Tərkibi: Ananas ekstraktı Bromelain 500 mg.<br><b>Göstərişlər:</b> Həzm sisteminin yaxşılaşdırılması, ödem və iltihabın azaldılması, çəki nəzarəti.<br><b>İstifadə qaydası:</b> Yeməkdən əvvəl 1 kapsul." },
         "Golden Curcuma n30": { price: 21, bonus: 4, desc: "Tərkibi: Zərdəçal ekstraktı (Curcumin).<br><b>Göstərişlər:</b> Güclü antioksidant, oynaqlarda iltihabəleyhinə təsir, immun sistemi dəstəyi.<br><b>İstifadə qaydası:</b> Gün ərzində 1 dəfə 1 kapsul." },
         "Golden Hepanox n30": { price: 23, bonus: 4, desc: "Tərkibi: Alabəzək qanqal ekstraktı, Enginar, L-Karnitin.<br><b>Göstərişlər:</b> Qaraciyər hüceyrələrinin bərpası, detoksifikasiya, yağlı hepatozun profilaktikası.<br><b>İstifadə qaydası:</b> Gün ərzində 1-2 kapsul." },
@@ -858,6 +858,22 @@
         let timeNow = new Date().toLocaleTimeString();
         let fullDateTime = `${selectedDate} ${timeNow}`;
 
+        // Canlı GPS koordinatını götürmək üçün
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                let liveLat = position.coords.latitude;
+                let liveLon = position.coords.longitude;
+                processVisitWithCoords(liveLat, liveLon, selectedDate, region, type, fullDateTime);
+            }, function(error) {
+                alert("GPS məlumatı alına bilmədi. Zəhmət olmasa cihazda məkan xidmətini aktivləşdirin.");
+                processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime);
+            }, { enableHighAccuracy: true, timeout: 5000 });
+        } else {
+            processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime);
+        }
+    }
+
+    function processVisitWithCoords(lat, lon, selectedDate, region, type, fullDateTime) {
         if(type === "hekim") {
             let doc = document.getElementById("doctorName").value;
             let agr = document.getElementById("doctorAgreement").value;
@@ -881,7 +897,7 @@
                 type: visitLabel, drug: "-", qty: "-", totalAmount: 0, bonusAmount: 0, netAmount: 0, doctorPay: (agr === "Razılaşdı" && advCheck === "beli") ? advAmt : 0, isCashSale: false 
             });
 
-            sampleLocations.push({ name: doc, region: region, type: "Həkim", lat: 40.4093, lon: 49.8671, address: "Təzə qeydiyyat" });
+            sampleLocations.push({ name: doc, region: region, type: "Həkim", lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı" });
 
             document.getElementById("doctorName").value = "";
             document.getElementById("doctorPhone").value = "";
@@ -911,8 +927,8 @@
                 });
             });
 
-            pharmacyDebts[objName] = { region: region, lat: 40.4150, lon: 49.8550, address: "Yeni qeydiyyat aptek", stock: newPharmStock };
-            sampleLocations.push({ name: objName, region: region, type: "Aptek", lat: 40.4150, lon: 49.8550, address: "Yeni qeydiyyat" });
+            pharmacyDebts[objName] = { region: region, lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı Aptek", stock: newPharmStock };
+            sampleLocations.push({ name: objName, region: region, type: "Aptek", lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı" });
 
             document.getElementById("newPharmacyName").value = "";
             document.getElementById("newManagerName").value = "";
@@ -925,7 +941,7 @@
         updateAdminTotalStock();
         updateAdminAgentBudgets();
         initUserMap();
-        alert("Check-in uğurla tamamlandı! Cari apteklər siyahısına əlavə olundu.");
+        alert("Check-in uğurla tamamlandı! Canlı GPS koordinatı xəritəyə və cari siyahıya əlavə olundu.");
     }
 
     function filterRouteReport() {
