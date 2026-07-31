@@ -47,9 +47,13 @@
         #map, #adminMap { width: 100%; height: 260px; border-radius: 8px; margin-top: 8px; border: 1px solid #cfd8dc; }
         
         .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #e0e0e0; border-radius: 8px; }
-        table { width: 100%; min-width: 550px; border-collapse: collapse; font-size: 11px; background: #fff; }
-        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; vertical-align: top; }
-        th { background: #e8f5e9; color: var(--primary); font-weight: 700; }
+        table { width: 100%; min-width: 580px; border-collapse: collapse; font-size: 11px; background: #fff; }
+        th, td { border: 1px solid #e0e0e0; padding: 0; text-align: left; vertical-align: top; }
+        th { background: #e8f5e9; color: var(--primary); font-weight: 700; padding: 8px 6px; }
+
+        /* Sətr içi alt xətt stili */
+        .sub-cell-item { padding: 6px; border-bottom: 1px solid #e0e0e0; min-height: 22px; display: flex; align-items: center; }
+        .sub-cell-item:last-child { border-bottom: none; }
 
         .login-banner { font-size: 12px; color: #37474f; line-height: 1.5; margin-bottom: 12px; text-align: center; background: #e8f5e9; padding: 10px; border-radius: 8px; border: 1px solid #c8e6c9; }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -168,7 +172,6 @@
             <div id="adminAgentBudgets" style="margin-top: 10px;"></div>
         </div>
 
-        <!-- ADMIN CANLI XƏRİTƏ VƏ FİLTRİ -->
         <div class="card">
             <h3>🗺️ Bütün İşçilərin Canlı Xəritəsi</h3>
             <label>İşçi Seçin:</label>
@@ -267,8 +270,8 @@
                             <th>Tarix / Saat</th>
                             <th>İşçi</th>
                             <th>Aptek</th>
-                            <th>Əməliyyat(lar)</th>
-                            <th>Məhsul(lar)</th>
+                            <th>Əməliyyat</th>
+                            <th>Məhsul</th>
                             <th>Miqdar</th>
                             <th>Bonus</th>
                             <th>Net Qazanc</th>
@@ -459,15 +462,15 @@
     let selectedNavCoords = { lat: 0, lon: 0 };
 
     let productsDB = {
-        "Golden Biotin n60": { price: 28, bonus: 5, desc: "Tərkibi: Biotin 5000 mcg.<br><b>Göstərişlər:</b> Saç tökülməsi, dırnaq kövrəkliyi, dəri yenilənməsi.<br><b>İstifadə qaydası:</b> Gündə 1 dəfə 1 kapsul bol su ilə içilir." },
-        "Golden Bromelain n30": { price: 23, bonus: 4, desc: "Tərkibi: Ananas ekstraktı Bromelain 500 mg.<br><b>Göstərişlər:</b> Həzm sisteminin yaxşılaşdırılması, ödem və iltihabın azaldılması, çəki nəzarəti.<br><b>İstifadə qaydası:</b> Yeməkdən əvvəl 1 kapsul." },
-        "Golden Curcuma n30": { price: 21, bonus: 4, desc: "Tərkibi: Zərdəçal ekstraktı (Curcumin).<br><b>Göstərişlər:</b> Güclü antioksidant, oynaqlarda iltihabəleyhinə təsir, immun sistemi dəstəyi.<br><b>İstifadə qaydası:</b> Gün ərzində 1 dəfə 1 kapsul." },
-        "Golden Hepanox n30": { price: 23, bonus: 4, desc: "Tərkibi: Alabəzək qanqal ekstraktı, Enginar, L-Karnitin.<br><b>Göstərişlər:</b> Qaraciyər hüceyrələrinin bərpası, detoksifikasiya, yağlı hepatozun profilaktikası.<br><b>İstifadə qaydası:</b> Gün ərzində 1-2 kapsul." },
-        "Golden Iron n60": { price: 26, bonus: 5, desc: "Tərkibi: Dəmir Bisqlisinat 28 mg + C vitamini, Folik turşusu.<br><b>Göstərişlər:</b> Anemiyanın müalicə və profilaktikası, halsızlıq və yorğunluğun aradan qaldırılması.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." },
-        "Golden Immunix n30": { price: 23, bonus: 4, desc: "Tərkibi: Ekineziya, Selsium, C Və D3 Vitamini, Sink.<br><b>Göstərişlər:</b> İmmunitetin gücləndirilməsi, mövsümi infeksiyalardan müdafiə.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." },
-        "Golden 5HTP n30": { price: 21, bonus: 4, desc: "Tərkibi: 5-Hydroxytryptophan 100 mg (Griffonia ekstraktı).<br><b>Göstərişlər:</b> Yuxu rejiminin tənzimlənməsi, stres və təşvişin azaldılması, əhval-ruhiyyənin qaldırılması.<br><b>İstifadə qaydası:</b> Yatmazdan 30 dəq əvvəl 1 kapsul." },
-        "Golden Iodium 15 ml": { price: 14, bonus: 2.5, desc: "Tərkibi: Bioaktiv Organik Yod damcı.<br><b>Göstərişlər:</b> Qalxanvari vəz funksiyasının dəstəklənməsi, yod çatışmazlığının aradan qaldırılması, zehni inkişaf.<br><b>İstifadə qaydası:</b> Hər gün 3-5 damcı suya qatılaraq içilir." },
-        "Golden Glutathione n30": { price: 23, bonus: 4, desc: "Tərkibi: L-Glutathione 500 mg (Reduced).<br><b>Göstərişlər:</b> Hüceyrə səviyyəsində cavanlaşma, qaraciyər detoksu, dərinin ağardılması və ləkələrin azaldılması.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." }
+        "Golden Biotin n60": { price: 28, bonus: 5, desc: "<b>Tərkibi:</b> Biotin (B7 Vitamini) 5000 mcg.<br><b>Göstərişlər:</b> Saç tökülməsinin qarşısının alınması, dırnaq kövrəkliyinin müalicəsi, dəri bərpası.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul bol su ilə içilir." },
+        "Golden Bromelain n30": { price: 23, bonus: 4, desc: "<b>Tərkibi:</b> Ananas Ekstraktı Bromelain 500 mg (2400 GDU/g).<br><b>Göstərişlər:</b> Həzm fermentasiyası dəstəyi, ödem və zədə sonrası iltihabın azaldılması.<br><b>İstifadə qaydası:</b> Yeməkdən 20 dəq əvvəl 1 kapsul." },
+        "Golden Curcuma n30": { price: 21, bonus: 4, desc: "<b>Tərkibi:</b> Curcuma Longa ekstraktı (95% Kurkuminoidlər) 500 mg.<br><b>Göstərişlər:</b> Güclü antioksidant, oynaqlarda iltihabəleyhinə və immunmodulyator təsir.<br><b>İstifadə qaydası:</b> Yemək zamanı gündə 1 kapsul." },
+        "Golden Hepanox n30": { price: 23, bonus: 4, desc: "<b>Tərkibi:</b> Alabəzək qanqal ekstraktı (Silimarin 80%) 200 mg, Enginar ekstraktı 150 mg, L-Karnitin.<br><b>Göstərişlər:</b> Hepatoprotektor, qaraciyərin detoksifikasiyası, yağlanmanın profilaktikası.<br><b>İstifadə qaydası:</b> Gündə 1-2 kapsul yeməkdən sonra." },
+        "Golden Iron n60": { price: 26, bonus: 5, desc: "<b>Tərkibi:</b> Dəmir Bisqlisinat 28 mg, Vitamin C 60 mg, Folik turşusu 400 mcg, B12 Vİtamini.<br><b>Göstərişlər:</b> Dəmir çatışmazlığı anemiyası, xroniki yorğunluq, hamiləlikdə dəmir dəstəyi.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul aç qarına." },
+        "Golden Immunix n30": { price: 23, bonus: 4, desc: "<b>Tərkibi:</b> Ekineziya 150 mg, Vitamin C 500 mg, Vitamin D3 2000 IU, Sink 15 mg, Selen.<br><b>Göstərişlər:</b> İmmunitetin kompleks gücləndirilməsi, virus və infeksiyalardan müdafiə.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." },
+        "Golden 5HTP n30": { price: 21, bonus: 4, desc: "<b>Tərkibi:</b> 5-Hydroxytryptophan (Griffonia simplicifolia ekstraktı) 100 mg.<br><b>Göstərişlər:</b> Yuxu pozğunluqları, təşviş və sinir gərginliyi, depressiv halların azaldılması.<br><b>İstifadə qaydası:</b> Yatmazdan 30-45 dəq əvvəl 1 kapsul." },
+        "Golden Iodium 15 ml": { price: 14, bonus: 2.5, desc: "<b>Tərkibi:</b> Organik Birləşmiş Yod (Potassium Iodide / Bio-Iodine).<br><b>Göstərişlər:</b> Qalxanvari vəz funksiya pozğunluqları (hipoterioz), yod defisiti.<br><b>İstifadə qaydası:</b> Gündə 3-5 damcı yarım stəkan suya qatılaraq içilir." },
+        "Golden Glutathione n30": { price: 23, bonus: 4, desc: "<b>Tərkibi:</b> Bərpa olunmuş L-Glutathione 500 mg, Vitamin C 100 mg.<br><b>Göstərişlər:</b> Baş antioksidant, hüceyrə cavanlaşması, pigmentasiya və dəri ağardılması, detoks.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul səhər yeməyindən əvvəl." }
     };
 
     let agentRegions = {
@@ -627,6 +630,7 @@
             regSelect.innerHTML += `<option value="${r}">${r}</option>`;
             stockRegSelect.innerHTML += `<option value="${r}">${r}</option>`;
         });
+        populateStockPharmacies();
     }
 
     function updateAdminTotalStock() {
@@ -678,8 +682,10 @@
 
         if(!reg) return;
 
+        // İŞÇİ İZOLYASİYASI: Yalnız işçinin öz yarandığı və aid olduğu apteklər
         for(let pName in pharmacyDebts) {
-            if(pharmacyDebts[pName].region === reg) {
+            let pData = pharmacyDebts[pName];
+            if(pData.region === reg && pData.agent === currentAgent) {
                 pharmSelect.innerHTML += `<option value="${pName}">${pName}</option>`;
             }
         }
@@ -738,7 +744,7 @@
                 alert(`Bu aptekdə nisyə gözləmədə cəmi ${currentDebt} qutu ${drug} var!`);
                 return;
             }
-            pData.stock[drug] -= qty; // Nisyə balansı azalır
+            pData.stock[drug] -= qty;
             
             let totalAmount = qty * pInfo.price;
             let bonusAmount = (opType === 'nagdlashdirma_serbest') ? (qty * pInfo.bonus) : 0;
@@ -843,9 +849,9 @@
         map = L.map('map').setView([40.4093, 49.8671], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-        let allowedRegions = agentRegions[currentAgent] || [];
+        // İŞÇİ İZOLYASİYASI: Yalnız bu işçinin öz yaratdığı lokasiyalar
         sampleLocations.forEach(loc => {
-            if(allowedRegions.includes(loc.region)) {
+            if(loc.agent === currentAgent) {
                 let marker = L.marker([loc.lat, loc.lon]).addTo(map);
                 let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>${loc.address}<br><br>` +
                     `<a href="#" onclick="openNavDirectModal(${loc.lat},${loc.lon}); return false;" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Yol Tərifi Al</a>`;
@@ -969,7 +975,7 @@
                 });
             });
 
-            pharmacyDebts[objName] = { region: region, lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı Aptek", stock: newPharmStock };
+            pharmacyDebts[objName] = { region: region, agent: currentAgent, lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı Aptek", stock: newPharmStock };
             sampleLocations.push({ name: objName, region: region, agent: currentAgent, date: selectedDate, type: "Aptek", lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı" });
 
             document.getElementById("newPharmacyName").value = "";
@@ -977,6 +983,7 @@
             document.getElementById("newManagerPhone").value = "";
             activeCart = [];
             document.getElementById("newCartList").innerHTML = "";
+            populateStockPharmacies();
         }
 
         updateAgentStockDisplay();
@@ -999,7 +1006,6 @@
             return matchAgent && matchDate;
         });
 
-        // Obyektlər üzrə 1 sətrdə alt-alta birləşdirmə
         let groupedVisits = {};
         filtered.forEach(r => {
             let key = `${r.agent}_${r.obj}`;
@@ -1024,18 +1030,25 @@
         `;
 
         if(Object.keys(groupedVisits).length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#78909c;">Seçilmiş tarixdə məlumat yoxdur.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:12px; color:#78909c;">Seçilmiş tarixdə məlumat yoxdur.</td></tr>`;
             return;
         }
 
         for(let key in groupedVisits) {
             let item = groupedVisits[key];
-            let timesText = item.times.join("<br>");
-            let detailsText = item.types.join("<br>");
+            let timesText = item.times.map(t => `<div class="sub-cell-item">${t}</div>`).join("");
+            let detailsText = item.types.map(d => `<div class="sub-cell-item">${d}</div>`).join("");
             let docPayText = (item.docPay > 0) ? `<b>${item.docPay} ₼</b>` : "-";
             
             let tr = document.createElement("tr");
-            tr.innerHTML = `<td>${item.date}<br><small style="color:#78909c;">${timesText}</small></td><td><b>${item.agent}</b></td><td>${item.region}</td><td>${item.obj}</td><td>${detailsText}</td><td>${docPayText}</td>`;
+            tr.innerHTML = `
+                <td style="padding:6px;">${item.date}<br><small style="color:#78909c;">${item.times.join(", ")}</small></td>
+                <td style="padding:6px;"><b>${item.agent}</b></td>
+                <td style="padding:6px;">${item.region}</td>
+                <td style="padding:6px;"><b>${item.obj}</b></td>
+                <td>${detailsText}</td>
+                <td style="padding:6px;">${docPayText}</td>
+            `;
             tbody.appendChild(tr);
         }
     }
@@ -1054,7 +1067,6 @@
             return matchAgent && matchDate && isStockOp;
         });
 
-        // Hər bir aptek üzrə məlumatları 1 cərgədə alt-alta birləşdiririk
         let groupedPharmacies = {};
         filtered.forEach(r => {
             let key = `${r.agent}_${r.obj}`;
@@ -1070,7 +1082,7 @@
         });
 
         if(Object.keys(groupedPharmacies).length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#78909c;">Seçilmiş tarixdə aptek satış/stok əməliyyatı yoxdur.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:12px; color:#78909c;">Seçilmiş tarixdə aptek satış/stok əməliyyatı yoxdur.</td></tr>`;
             calcBox.innerHTML = `<b>📊 ÜMUMİ MALİYYƏ HESABATI VƏ İCRA GÖSTƏRİCİLƏRİ:</b><br> Nağd Satış Miqdarı: 0 qutu | Verilən Bonuslar: 0 ₼ | Saf Net Qazanc: 0 ₼<br><span style="color:#0277bd;">Nisyə Verilib Gözləmədə Olan: 0 qutu (0 ₼)</span>`;
             return;
         }
@@ -1091,7 +1103,6 @@
             }
         });
 
-        // Bütün apteklərdə faktiki nisyə gözləmədə qalan ümumi stok və AZN məbləği
         let currentTotalNisyeQty = 0;
         let currentTotalNisyeAzn = 0;
         for(let pName in pharmacyDebts) {
@@ -1107,16 +1118,24 @@
 
         for(let key in groupedPharmacies) {
             let item = groupedPharmacies[key];
+            
+            // Alt-alta xətlərlə səliqəli düzülüş
+            let opsHtml = item.ops.map(o => `<div class="sub-cell-item">${o}</div>`).join("");
+            let drugsHtml = item.drugs.map(d => `<div class="sub-cell-item">${d}</div>`).join("");
+            let qtysHtml = item.qtys.map(q => `<div class="sub-cell-item">${q}</div>`).join("");
+            let bonusesHtml = item.bonuses.map(b => `<div class="sub-cell-item">${b}</div>`).join("");
+            let netsHtml = item.nets.map(n => `<div class="sub-cell-item"><b>${n}</b></div>`).join("");
+
             let tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${item.date}<br><small style="color:#78909c;">${item.times.join("<br>")}</small></td>
-                <td><b>${item.agent}</b></td>
-                <td><b>${item.obj}</b></td>
-                <td>${item.ops.join("<br>")}</td>
-                <td>${item.drugs.join("<br>")}</td>
-                <td>${item.qtys.join("<br>")}</td>
-                <td>${item.bonuses.join("<br>")}</td>
-                <td><b>${item.nets.join("<br>")}</b></td>
+                <td style="padding:6px;">${item.date}<br><small style="color:#78909c;">${item.times.join(", ")}</small></td>
+                <td style="padding:6px;"><b>${item.agent}</b></td>
+                <td style="padding:6px;"><b>${item.obj}</b></td>
+                <td>${opsHtml}</td>
+                <td>${drugsHtml}</td>
+                <td>${qtysHtml}</td>
+                <td>${bonusesHtml}</td>
+                <td>${netsHtml}</td>
             `;
             tbody.appendChild(tr);
         }
@@ -1143,7 +1162,7 @@
                 if(!r.type.includes("Nisyə") && !r.type.includes("Əlavə Nisyə")) {
                     myNetSum += net;
                 }
-                html += `<tr><td>${r.timeOnly}</td><td><b>${r.obj}</b></td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${net} ₼</b></td></tr>`;
+                html += `<tr><td style="padding:6px;">${r.timeOnly}</td><td style="padding:6px;"><b>${r.obj}</b></td><td style="padding:6px;">${r.type}</td><td style="padding:6px;">${r.drug}</td><td style="padding:6px;">${r.qty}</td><td style="padding:6px;"><b>${net} ₼</b></td></tr>`;
             });
             html += `</tbody></table></div>`;
 
@@ -1151,11 +1170,13 @@
             let myNisyeAzn = 0;
             for(let pName in pharmacyDebts) {
                 let pData = pharmacyDebts[pName];
-                for(let d in pData.stock) {
-                    let q = pData.stock[d] || 0;
-                    if(q > 0) {
-                        myNisyeQty += q;
-                        myNisyeAzn += (q * (productsDB[d] ? productsDB[d].price : 0));
+                if(pData.agent === currentAgent) {
+                    for(let d in pData.stock) {
+                        let q = pData.stock[d] || 0;
+                        if(q > 0) {
+                            myNisyeQty += q;
+                            myNisyeAzn += (q * (productsDB[d] ? productsDB[d].price : 0));
+                        }
                     }
                 }
             }
