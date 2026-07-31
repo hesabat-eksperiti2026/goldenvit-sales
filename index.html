@@ -47,8 +47,8 @@
         #map, #adminMap { width: 100%; height: 260px; border-radius: 8px; margin-top: 8px; border: 1px solid #cfd8dc; }
         
         .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #e0e0e0; border-radius: 8px; }
-        table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 10px; background: #fff; }
-        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; white-space: nowrap; }
+        table { width: 100%; min-width: 550px; border-collapse: collapse; font-size: 11px; background: #fff; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; vertical-align: top; }
         th { background: #e8f5e9; color: var(--primary); font-weight: 700; }
 
         .login-banner { font-size: 12px; color: #37474f; line-height: 1.5; margin-bottom: 12px; text-align: center; background: #e8f5e9; padding: 10px; border-radius: 8px; border: 1px solid #c8e6c9; }
@@ -65,12 +65,13 @@
         
         .nav-choice-btn { margin-top: 8px; padding: 10px; font-size: 13px; text-align: center; border-radius: 8px; font-weight: bold; text-decoration: none; display: block; color: white; }
 
-        /* Məhsullar Şəbəkəsi */
         .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         .product-card { background: #fff; border: 1px solid #c8e6c9; border-radius: 8px; padding: 8px; text-align: center; cursor: pointer; transition: transform 0.1s; }
         .product-card:active { transform: scale(0.97); }
         .product-title { font-size: 11px; font-weight: bold; color: var(--primary); margin-bottom: 4px; }
         .product-price { font-size: 10px; color: var(--secondary); font-weight: 600; }
+
+        .web-link-btn { display: block; text-align: center; background: #0277bd; color: white; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-top: 12px; }
     </style>
 </head>
 <body>
@@ -124,6 +125,8 @@
             <h3>💊 Şirkət Məhsulları & Təlimatları</h3>
             <p style="font-size: 11px; color: var(--gray); margin-top: -5px;">Həkim təqdimatı zamanı istənilən dərmana toxunaraq xüsusiyyətləri açın:</p>
             <div class="products-grid" id="publicProductsList"></div>
+            
+            <a href="https://goldenvitpharma.com/products" target="_blank" class="web-link-btn">🌐 Dərmanlar haqqında daha ətraflı məlumat üçün keçid edin (goldenvitpharma.com)</a>
         </div>
     </div>
 
@@ -165,8 +168,23 @@
             <div id="adminAgentBudgets" style="margin-top: 10px;"></div>
         </div>
 
+        <!-- ADMIN CANLI XƏRİTƏ VƏ FİLTRİ -->
         <div class="card">
             <h3>🗺️ Bütün İşçilərin Canlı Xəritəsi</h3>
+            <label>İşçi Seçin:</label>
+            <select id="adminMapAgentSelect" onchange="filterAdminMap()">
+                <option value="all">Bütün İşçilər</option>
+                <option value="Quluzadə Orxan">Quluzadə Orxan</option>
+                <option value="Xamıyev Hüseyn">Xamıyev Hüseyn</option>
+                <option value="İşçi 3">İşçi 3</option>
+                <option value="İşçi 4">İşçi 4</option>
+                <option value="İşçi 5">İşçi 5</option>
+                <option value="İşçi 6">İşçi 6</option>
+                <option value="İşçi 7">İşçi 7</option>
+            </select>
+            <label>Tarix:</label>
+            <input type="date" id="adminMapDateSelect" value="2026-07-28" onchange="filterAdminMap()">
+
             <div id="adminMap"></div>
         </div>
 
@@ -203,12 +221,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Tarix/Saat</th>
+                            <th>Tarix / Saat</th>
                             <th>İşçi</th>
                             <th>Rayon</th>
                             <th>Obyekt</th>
-                            <th>Ziyarət Növü & Detallar</th>
-                            <th>Həkimə Verilən (Bonusdan)</th>
+                            <th>Ziyarət Detalları</th>
+                            <th>Həkimə Verilən</th>
                         </tr>
                     </thead>
                     <tbody id="routeTableBody"></tbody>
@@ -246,14 +264,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Tarix</th>
+                            <th>Tarix / Saat</th>
                             <th>İşçi</th>
                             <th>Aptek</th>
-                            <th>Əməliyyat</th>
-                            <th>Məhsul</th>
-                            <th>Miq</th>
+                            <th>Əməliyyat(lar)</th>
+                            <th>Məhsul(lar)</th>
+                            <th>Miqdar</th>
                             <th>Bonus</th>
-                            <th>Net Məbləğ</th>
+                            <th>Net Qazanc</th>
                         </tr>
                     </thead>
                     <tbody id="stockReportTableBody"></tbody>
@@ -435,6 +453,7 @@
 <script>
     let map = null;
     let adminMap = null;
+    let adminMarkersGroup = null;
     let currentAgent = "Quluzadə Orxan";
     let activeCart = [];
     let selectedNavCoords = { lat: 0, lon: 0 };
@@ -534,7 +553,7 @@
             initDropdowns();
             updateAdminTotalStock();
             updateAdminAgentBudgets();
-            setTimeout(() => { initAdminMap(); }, 200);
+            setTimeout(() => { initAdminMap(); filterAdminMap(); }, 200);
         } else {
             let passMap = { "Quluzadə Orxan": "1", "Xamıyev Hüseyn": "2" };
             let expectedPass = passMap[val] || val.replace("İşçi ", "");
@@ -579,7 +598,7 @@
         document.getElementById("adminPanel").classList.remove("hidden");
         updateAdminTotalStock();
         updateAdminAgentBudgets();
-        setTimeout(() => { if(adminMap) adminMap.invalidateSize(); }, 200);
+        setTimeout(() => { if(adminMap) { adminMap.invalidateSize(); filterAdminMap(); } }, 200);
     }
 
     function updateAgentStockDisplay() {
@@ -719,15 +738,15 @@
                 alert(`Bu aptekdə nisyə gözləmədə cəmi ${currentDebt} qutu ${drug} var!`);
                 return;
             }
-            pData.stock[drug] -= qty;
+            pData.stock[drug] -= qty; // Nisyə balansı azalır
             
             let totalAmount = qty * pInfo.price;
             let bonusAmount = (opType === 'nagdlashdirma_serbest') ? (qty * pInfo.bonus) : 0;
             let netAmount = totalAmount - bonusAmount;
-            let opLabel = (opType === 'nagdlashdirma_serbest') ? "Nağdlaşdırma (Bonuslu Satış)" : "Nağdlaşdırma (Bonussuz Ressept)";
+            let opLabel = (opType === 'nagdlashdirma_serbest') ? "Nağdlaşdırma (Bonuslu)" : "Nağdlaşdırma (Bonussuz)";
 
             visitReports.push({ 
-                date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
+                date: selectedDate, dateTime: fullDateTime, timeOnly: timeNow, agent: currentAgent, region: pData.region, obj: pName, 
                 type: opLabel, drug: drug, qty: qty, 
                 totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount, doctorPay: 0, isCashSale: true 
             });
@@ -744,7 +763,7 @@
             let totalAmount = qty * pInfo.price;
 
             visitReports.push({ 
-                date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pName, 
+                date: selectedDate, dateTime: fullDateTime, timeOnly: timeNow, agent: currentAgent, region: pData.region, obj: pName, 
                 type: "Əlavə Nisyə (Gözləmədə)", drug: drug, qty: qty, 
                 totalAmount: totalAmount, bonusAmount: 0, netAmount: 0, doctorPay: 0, isCashSale: false 
             });
@@ -844,11 +863,35 @@
         if(adminMap) { adminMap.remove(); }
         adminMap = L.map('adminMap').setView([40.4093, 49.8671], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(adminMap);
+        adminMarkersGroup = L.featureGroup().addTo(adminMap);
+    }
 
-        sampleLocations.forEach(loc => {
-            let marker = L.marker([loc.lat, loc.lon]).addTo(adminMap);
-            marker.bindPopup(`<b>[${loc.type}] ${loc.name}</b><br>Rayon: ${loc.region}<br>${loc.address}`);
+    function filterAdminMap() {
+        if(!adminMap || !adminMarkersGroup) return;
+        adminMarkersGroup.clearLayers();
+
+        let selAgent = document.getElementById("adminMapAgentSelect").value;
+        let selDate = document.getElementById("adminMapDateSelect").value;
+
+        let filteredLocs = sampleLocations.filter(loc => {
+            let matchAgent = (selAgent === "all" || loc.agent === selAgent);
+            let matchDate = (!loc.date || loc.date === selDate);
+            return matchAgent && matchDate;
         });
+
+        if(filteredLocs.length === 0) return;
+
+        let bounds = [];
+        filteredLocs.forEach(loc => {
+            let marker = L.marker([loc.lat, loc.lon]);
+            marker.bindPopup(`<b>[${loc.type}] ${loc.name}</b><br>İşçi: ${loc.agent || 'Ümumi'}<br>Rayon: ${loc.region}`);
+            adminMarkersGroup.addLayer(marker);
+            bounds.push([loc.lat, loc.lon]);
+        });
+
+        if(bounds.length > 0) {
+            adminMap.fitBounds(bounds, { padding: [30, 30] });
+        }
     }
 
     function submitVisit() {
@@ -858,22 +901,21 @@
         let timeNow = new Date().toLocaleTimeString();
         let fullDateTime = `${selectedDate} ${timeNow}`;
 
-        // Canlı GPS koordinatını götürmək üçün
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 let liveLat = position.coords.latitude;
                 let liveLon = position.coords.longitude;
-                processVisitWithCoords(liveLat, liveLon, selectedDate, region, type, fullDateTime);
+                processVisitWithCoords(liveLat, liveLon, selectedDate, region, type, fullDateTime, timeNow);
             }, function(error) {
-                alert("GPS məlumatı alına bilmədi. Zəhmət olmasa cihazda məkan xidmətini aktivləşdirin.");
-                processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime);
+                alert("GPS məlumatı alına bilmədi. Məkan xidmətini aktivləşdirin.");
+                processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime, timeNow);
             }, { enableHighAccuracy: true, timeout: 5000 });
         } else {
-            processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime);
+            processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime, timeNow);
         }
     }
 
-    function processVisitWithCoords(lat, lon, selectedDate, region, type, fullDateTime) {
+    function processVisitWithCoords(lat, lon, selectedDate, region, type, fullDateTime, timeNow) {
         if(type === "hekim") {
             let doc = document.getElementById("doctorName").value;
             let agr = document.getElementById("doctorAgreement").value;
@@ -893,11 +935,11 @@
             let visitLabel = `Həkim Ziyarəti (${agr})`;
 
             visitReports.push({ 
-                date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: doc, 
+                date: selectedDate, dateTime: fullDateTime, timeOnly: timeNow, agent: currentAgent, region: region, obj: doc, 
                 type: visitLabel, drug: "-", qty: "-", totalAmount: 0, bonusAmount: 0, netAmount: 0, doctorPay: (agr === "Razılaşdı" && advCheck === "beli") ? advAmt : 0, isCashSale: false 
             });
 
-            sampleLocations.push({ name: doc, region: region, type: "Həkim", lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı" });
+            sampleLocations.push({ name: doc, region: region, agent: currentAgent, date: selectedDate, type: "Həkim", lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı" });
 
             document.getElementById("doctorName").value = "";
             document.getElementById("doctorPhone").value = "";
@@ -920,7 +962,7 @@
                 }
 
                 visitReports.push({ 
-                    date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: region, obj: objName, 
+                    date: selectedDate, dateTime: fullDateTime, timeOnly: timeNow, agent: currentAgent, region: region, obj: objName, 
                     type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə Gözləmədə' : 'Nağd Satış'})`, 
                     drug: item.drug, qty: item.qty, 
                     totalAmount: item.totalAmount, bonusAmount: item.bonusAmount, netAmount: item.netAmount, doctorPay: 0, isCashSale: (item.mode === 'nagd') 
@@ -928,7 +970,7 @@
             });
 
             pharmacyDebts[objName] = { region: region, lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı Aptek", stock: newPharmStock };
-            sampleLocations.push({ name: objName, region: region, type: "Aptek", lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı" });
+            sampleLocations.push({ name: objName, region: region, agent: currentAgent, date: selectedDate, type: "Aptek", lat: lat, lon: lon, address: "Canlı GPS Qeydiyyatı" });
 
             document.getElementById("newPharmacyName").value = "";
             document.getElementById("newManagerName").value = "";
@@ -941,7 +983,7 @@
         updateAdminTotalStock();
         updateAdminAgentBudgets();
         initUserMap();
-        alert("Check-in uğurla tamamlandı! Canlı GPS koordinatı xəritəyə və cari siyahıya əlavə olundu.");
+        alert("Check-in uğurla tamamlandı! Cari apteklər siyahısına əlavə olundu.");
     }
 
     function filterRouteReport() {
@@ -957,17 +999,18 @@
             return matchAgent && matchDate;
         });
 
+        // Obyektlər üzrə 1 sətrdə alt-alta birləşdirmə
         let groupedVisits = {};
         filtered.forEach(r => {
-            let key = `${r.dateTime}_${r.agent}_${r.obj}`;
+            let key = `${r.agent}_${r.obj}`;
             if(!groupedVisits[key]) {
-                groupedVisits[key] = { dateTime: r.dateTime, agent: r.agent, region: r.region, obj: r.obj, types: [], docPay: 0, itemsSummary: [] };
+                groupedVisits[key] = { date: r.date, times: [], agent: r.agent, region: r.region, obj: r.obj, types: [], docPay: 0 };
             }
-            if(!groupedVisits[key].types.includes(r.type)) groupedVisits[key].types.push(r.type);
+            if(!groupedVisits[key].times.includes(r.timeOnly)) groupedVisits[key].times.push(r.timeOnly);
+            
+            let detailStr = `${r.type}${r.drug !== '-' ? ' - ' + r.drug + ' (' + r.qty + ' qut)' : ''}`;
+            groupedVisits[key].types.push(detailStr);
             if(r.doctorPay > 0) groupedVisits[key].docPay += r.doctorPay;
-            if(r.drug && r.drug !== "-") {
-                groupedVisits[key].itemsSummary.push(`${r.drug} (${r.qty} qut)`);
-            }
         });
 
         let totalVisitsCount = Object.keys(groupedVisits).length;
@@ -987,13 +1030,12 @@
 
         for(let key in groupedVisits) {
             let item = groupedVisits[key];
-            let typeDesc = item.types.join(", ");
-            if(item.itemsSummary.length > 0) {
-                typeDesc += ` [${item.itemsSummary.join(", ")}]`;
-            }
+            let timesText = item.times.join("<br>");
+            let detailsText = item.types.join("<br>");
             let docPayText = (item.docPay > 0) ? `<b>${item.docPay} ₼</b>` : "-";
+            
             let tr = document.createElement("tr");
-            tr.innerHTML = `<td>${item.dateTime}</td><td><b>${item.agent}</b></td><td>${item.region}</td><td>${item.obj}</td><td>${typeDesc}</td><td>${docPayText}</td>`;
+            tr.innerHTML = `<td>${item.date}<br><small style="color:#78909c;">${timesText}</small></td><td><b>${item.agent}</b></td><td>${item.region}</td><td>${item.obj}</td><td>${detailsText}</td><td>${docPayText}</td>`;
             tbody.appendChild(tr);
         }
     }
@@ -1012,45 +1054,74 @@
             return matchAgent && matchDate && isStockOp;
         });
 
-        if(filtered.length === 0) {
+        // Hər bir aptek üzrə məlumatları 1 cərgədə alt-alta birləşdiririk
+        let groupedPharmacies = {};
+        filtered.forEach(r => {
+            let key = `${r.agent}_${r.obj}`;
+            if(!groupedPharmacies[key]) {
+                groupedPharmacies[key] = { date: r.date, times: [], agent: r.agent, obj: r.obj, ops: [], drugs: [], qtys: [], bonuses: [], nets: [] };
+            }
+            groupedPharmacies[key].times.push(r.timeOnly);
+            groupedPharmacies[key].ops.push(r.type);
+            groupedPharmacies[key].drugs.push(r.drug);
+            groupedPharmacies[key].qtys.push(r.qty + " qut");
+            groupedPharmacies[key].bonuses.push((r.bonusAmount || 0) + " ₼");
+            groupedPharmacies[key].nets.push((r.netAmount || 0) + " ₼");
+        });
+
+        if(Object.keys(groupedPharmacies).length === 0) {
             tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#78909c;">Seçilmiş tarixdə aptek satış/stok əməliyyatı yoxdur.</td></tr>`;
-            calcBox.innerHTML = `<b>📊 ÜMUMİ MALİYYƏ HESABATI VƏ İCRA GÖSTƏRİCİLƏRİ:</b><br> Nağd Satış Miqdarı: 0 qutu | Verilən Bonuslar: 0 ₼ | Saf Net Qazanc: 0 ₼<br><span style="color:#0277bd;">Nisyə Verilib Gözləmədə Olan: 0 qutu</span>`;
+            calcBox.innerHTML = `<b>📊 ÜMUMİ MALİYYƏ HESABATI VƏ İCRA GÖSTƏRİCİLƏRİ:</b><br> Nağd Satış Miqdarı: 0 qutu | Verilən Bonuslar: 0 ₼ | Saf Net Qazanc: 0 ₼<br><span style="color:#0277bd;">Nisyə Verilib Gözləmədə Olan: 0 qutu (0 ₼)</span>`;
             return;
         }
 
         let totalCashQty = 0;
         let totalBonusSum = 0;
         let totalNetSum = 0;
-        let totalNisyeQty = 0;
 
         filtered.forEach(r => {
             let qty = (r.qty !== "-" && !isNaN(r.qty)) ? parseInt(r.qty) : 0;
             let bon = r.bonusAmount || 0;
             let net = r.netAmount || 0;
 
-            if(r.type.includes("Nisyə") || r.type.includes("Əlavə Nisyə")) {
-                totalNisyeQty += qty;
-            } else {
+            if(!r.type.includes("Nisyə") && !r.type.includes("Əlavə Nisyə")) {
                 totalCashQty += qty;
                 totalBonusSum += bon;
                 totalNetSum += net;
             }
-
-            let tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${r.dateTime || r.date}</td>
-                <td><b>${r.agent}</b></td>
-                <td>${r.obj}</td>
-                <td>${r.type}</td>
-                <td>${r.drug}</td>
-                <td>${r.qty}</td>
-                <td>${bon} ₼</td>
-                <td><b>${net} ₼</b></td>
-            `;
-            tbody.appendChild(tr);
         });
 
-        calcBox.innerHTML = `📊 ÜMUMİ MALİYYƏ HESABATI VƏ İCRA GÖSTƏRİCİLƏRİ:<br> Nağd Satış Miqdarı: ${totalCashQty} qutu | Verilən Bonuslar: ${totalBonusSum} ₼ | <b>Saf Net Qazanc: ${totalNetSum} ₼</b><br><span style="color:#0277bd;">Nisyə Verilib Gözləmədə Olan: ${totalNisyeQty} qutu</span>`;
+        // Bütün apteklərdə faktiki nisyə gözləmədə qalan ümumi stok və AZN məbləği
+        let currentTotalNisyeQty = 0;
+        let currentTotalNisyeAzn = 0;
+        for(let pName in pharmacyDebts) {
+            let pData = pharmacyDebts[pName];
+            for(let d in pData.stock) {
+                let q = pData.stock[d] || 0;
+                if(q > 0) {
+                    currentTotalNisyeQty += q;
+                    currentTotalNisyeAzn += (q * (productsDB[d] ? productsDB[d].price : 0));
+                }
+            }
+        }
+
+        for(let key in groupedPharmacies) {
+            let item = groupedPharmacies[key];
+            let tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${item.date}<br><small style="color:#78909c;">${item.times.join("<br>")}</small></td>
+                <td><b>${item.agent}</b></td>
+                <td><b>${item.obj}</b></td>
+                <td>${item.ops.join("<br>")}</td>
+                <td>${item.drugs.join("<br>")}</td>
+                <td>${item.qtys.join("<br>")}</td>
+                <td>${item.bonuses.join("<br>")}</td>
+                <td><b>${item.nets.join("<br>")}</b></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        calcBox.innerHTML = `📊 ÜMUMİ MALİYYƏ HESABATI VƏ İCRA GÖSTƏRİCİLƏRİ:<br> Nağd Satış Miqdarı: ${totalCashQty} qutu | Verilən Bonuslar: ${totalBonusSum} ₼ | <b>Saf Net Qazanc: ${totalNetSum} ₼</b><br><span style="color:#0277bd;">Nisyə Verilib Gözləmədə Olan: <b>${currentTotalNisyeQty} qutu (${currentTotalNisyeAzn} ₼)</b></span>`;
     }
 
     function openAgentReportModal() {
@@ -1064,21 +1135,32 @@
             content.innerHTML = `<p style="text-align:center; color:#78909c;">Sizin ${selectedDate} tarixində hələ heç bir əməliyyatınız yoxdur.</p>`;
         } else {
             let html = `<p style="font-size:12px; font-weight:bold; color:var(--primary);">📅 Tarix: ${selectedDate}</p>`;
-            html += `<div class="table-container"><table><thead><tr><th>Tarix/Saat</th><th>Obyekt</th><th>Əməliyyat</th><th>Məhsul</th><th>Miq</th><th>Məbləğ</th></tr></thead><tbody>`;
+            html += `<div class="table-container"><table><thead><tr><th>Saat</th><th>Obyekt</th><th>Əməliyyat</th><th>Məhsul</th><th>Miq</th><th>Məbləğ</th></tr></thead><tbody>`;
             
             let myNetSum = 0;
-            let nisyeQtySum = 0;
             filtered.forEach(r => {
                 let net = r.netAmount || 0;
-                if(r.type.includes("Nisyə") || r.type.includes("Əlavə Nisyə")) {
-                    nisyeQtySum += (r.qty !== "-" ? parseInt(r.qty) : 0);
-                } else {
+                if(!r.type.includes("Nisyə") && !r.type.includes("Əlavə Nisyə")) {
                     myNetSum += net;
                 }
-                html += `<tr><td>${r.dateTime}</td><td><b>${r.obj}</b></td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${net} ₼</b></td></tr>`;
+                html += `<tr><td>${r.timeOnly}</td><td><b>${r.obj}</b></td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${net} ₼</b></td></tr>`;
             });
             html += `</tbody></table></div>`;
-            html += `<div class="calc-total-box" style="margin-top:10px;">Günlük Nağd Saf Net Qazanc: <b>${myNetSum} ₼</b><br><span style="font-weight:normal; font-size:11px;">Nisyə Verilib Gözləmədə Olan Məhsul: ${nisyeQtySum} qutu</span></div>`;
+
+            let myNisyeQty = 0;
+            let myNisyeAzn = 0;
+            for(let pName in pharmacyDebts) {
+                let pData = pharmacyDebts[pName];
+                for(let d in pData.stock) {
+                    let q = pData.stock[d] || 0;
+                    if(q > 0) {
+                        myNisyeQty += q;
+                        myNisyeAzn += (q * (productsDB[d] ? productsDB[d].price : 0));
+                    }
+                }
+            }
+
+            html += `<div class="calc-total-box" style="margin-top:10px;">Günlük Nağd Saf Net Qazanc: <b>${myNetSum} ₼</b><br><span style="font-weight:normal; font-size:11px; color:#0277bd;">Cari Nisyə Gözləmədə Olan Məhsul: <b>${myNisyeQty} qutu (${myNisyeAzn} ₼)</b></span></div>`;
             content.innerHTML = html;
         }
 
@@ -1089,7 +1171,6 @@
         document.getElementById("agentReportModal").classList.add("hidden");
     }
 
-    // Səhifə yüklənəndə məhsul kataloqunu qur
     window.onload = function() {
         renderPublicProducts();
     };
